@@ -81,9 +81,15 @@ carousel overflow), with no console errors, no failed requests and no broken ima
 
 ## Known items
 
-- `rel="canonical"` and `sitemap.xml` still point at the original
-  `kayl-blip.github.io/client-previews/…` preview URL. Harmless while every page is
-  `noindex`, but stale.
+- Absolute self-references were re-pointed from the original `kayl-blip.github.io/client-previews/…`
+  preview to this one: **1,043 references across 50 files** — 48 canonicals, 48 `og:url`, 48
+  sitemap `<loc>`, the `robots.txt` Sitemap line and 898 JSON-LD graph refs (`@id` / `url` on
+  #website, #practice, #practitioner, #webpage). Only fixing the canonical would have left the
+  structured data declaring a different entity URL than the canonical tag. Verified: 0 old
+  references remain, all 48 JSON-LD blocks still parse, every canonical is self-referential, and
+  all 48 sitemap URLs return 200.
+  **These point at a PREVIEW host.** When the site moves to the client's real domain they must be
+  swapped again — there is no build step that derives them.
 - `assets/physio-exercise.mp4` was re-encoded from the 12 Mbps source: **27.0 MB -> 2.6 MB**
   (H.264 1920x1080 CRF 28, audio stripped - the source carried no audio track, and the clip
   is muted on the page anyway). Measured against the original at **SSIM 0.985 / PSNR 43.5 dB**,

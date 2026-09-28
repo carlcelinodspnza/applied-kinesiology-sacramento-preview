@@ -1,0 +1,443 @@
+/* ==========================================================================
+   CONCEPT C - homepage V2 pass. Consolidated from the sibling preview
+   applied-kinesiology-sacramento.heroC-typewriter.html on 2026-09-28.
+
+   WHY ITS OWN SHEET, not an append to structural.css:
+   in the preview this block was an inline <style> after the last <link>, so it
+   resolved AFTER brand-card-bespoke.css. structural.css loads BEFORE bespoke, and
+   V1-LOG trap #1 records that bespoke silently beats equal-specificity rules there
+   (.tier-bespoke .ak-hero h1, .tier-bespoke .bw-lede). Shipping as the last sheet
+   keeps the exact cascade position the concept was verified in, and leaves
+   structural.css byte-identical so the other 47 pages need no ?v= bump.
+
+   Linked from index.html ONLY - every rule here is a homepage change.
+   ========================================================================== */
+
+/* =====================================================================
+   CONCEPT C — TYPEWRITER WORDMARK  (owner's brief)
+   ONE two-line display slot sitting exactly where "Applied Kinesiology"
+   sits in the reference, BEHIND the two figures. It types a service,
+   holds, erases, types the next.
+
+   Measured constants (from the supplied assets, this session):
+     BG2 alpha bbox x1100-1446 / y272-807 of the 1680x847 frame
+     BG3/BG1 are pure #FFFFFF for every pixel x < 1008 (exactly 60.00%)
+     Playfair 500 @ -0.015em: widest 2-line break excluding the long
+     outlier is "Chiropractic" = 5.573em; the outlier
+     "Hormone therapy" = 7.813em and is auto-fitted per phrase in JS.
+   ===================================================================== */
+:root{
+  /* right edge of the approved copy column, computed the way the layout computes it.
+     Verified against the live page: 972px at 1680. */
+  --ak-copy-right: calc(max(24px,(100vw - 1160px)/2) + 24px + 43rem);
+  --ak-well-left:  calc(var(--ak-copy-right) + 32px);
+  /* 0.40 = 1 - 0.60 : the fraction of the plate lying right of its pure-white boundary */
+  --ak-plate-w:    min(1680px, calc((100vw - var(--ak-copy-right) - 32px) / 0.40));
+  /* optical gutter so no phrase ever touches the viewport edge */
+  --ak-t-gut:      clamp(18px, 2.6vw, 56px);
+  --ak-t-avail:    calc(100vw - var(--ak-well-left) - var(--ak-t-gut));
+  /* 5.63 = the widest 2-line measure ("Chiropractic" 5.573em) + ~1% headroom for
+     font-loading and sub-pixel variance, so even the binding phrase keeps slack. */
+  --ak-t-size:     clamp(30px, calc(var(--ak-t-avail) / 5.63), 132px);
+  --ak-t-lead:     1.02;   /* was .92 - the line box was SMALLER than the font, so the
+                              two lines' ink boxes overlapped by 49px at 121px. */
+  --ak-t-ink:      rgba(44,54,62,.46);
+}
+.ak-hero::before{ display:none !important; }   /* retire the outgoing paper wedge */
+
+/* ---- WHITE GROUND, ALL WIDTHS ------------------------------------------------
+   MBG1's bottom edge is pure #FFFFFF (measured: 100% of its bottom 30 rows,
+   min = max = 255 on every channel). The stock hero ground was rgb(255,253,250)
+   PLUS two radial gradients, one of them rgb(221,239,243) - a blue tint. That is
+   what read as a grey cast. The warm grain overlay is hidden with them, because
+   at opacity .06 it also tints the ground and would stop it being a true white.
+   BG1 is welded on with mix-blend-mode:multiply, and multiply against #FFFFFF is
+   an exact identity (255*x/255 = x), so the photo is unaffected. */
+.ak-hero{ background-color:#FFFFFF !important; background-image:none !important; }
+.ak-hero .bw-bandtex{ display:none !important; }
+
+/* ---- EYEBROW LEADING RULE REMOVED, ALL WIDTHS --------------------------------
+   `.ak-hero__brow::before` (structural.css:2564) is a 40x2px currentColor bar at
+   opacity .5. Dropping it lets the eyebrow start flush with the H1 below it; the
+   flex `gap` it occupied collapses with it. */
+.ak-hero__brow::before{ display:none !important; }
+
+/* ---- SEAM CURVE SHADE ---------------------------------------------------------
+   The `--deep` seam variant fills its path with --ds-primary-deep-2 #263440, described
+   in the V1 log as "the band's gradient end". But the .surface-dark section it extends
+   from computes to a FLAT rgb(30,42,51) #1E2A33 with background-image:none - there is no
+   gradient for it to end on. Pixel-sampled the render to confirm: a hard step at the
+   seam from #1E2A33 (y258) to #263440 (y262), which is the lighter slate band showing
+   under the curve. Match the path to the section it continues.
+   Unscoped on purpose so mobile gets it too. */
+.bw-seam--deep path{ fill:#1E2A33; }
+
+/* ---- SECTION 08 VIDEO + ARC ----------------------------------------------------
+   The slot was built for a 512x512 clip: `.ak-loopvid` pins `aspect-ratio:1/1` with
+   `object-fit:cover`. The owner's replacement is 1920x1080, and a 16:9 source in a 1:1
+   box loses ~44% of its width to the crop, so the box takes the source's own ratio.
+   The arc has been MOVED in the markup from the foot of the previous section to the
+   foot of this one. Its fill has to follow: at the top it was painting the warm
+   section's own start colour (#F2EADF); at the bottom it is the curved top edge of
+   what comes NEXT, and `.section--soft` starts at #FFFDFA. */
+.ak-loopvid--wide{ aspect-ratio:16/9; }
+
+/* ---- SECTION 08: VIDEO COLUMN WIDENED TO FULL ROW ------------------------------
+   Asked to widen the video column so it fills the empty space beneath it. Measured
+   the intermediate splits first, and widening the COLUMN alone makes it WORSE, because
+   narrowing the text column makes that column grow taller faster than the video grows:
+     7/5 (was)  text 611x576  video 437x246  leftover 330
+     6/6        text 524x661  video 524x295  leftover 366
+     5/7        text 437x718  video 611x344  leftover 374
+   Taller aspect ratios close it only by cropping the owner's frame (4:3 -> leftover 252
+   but 25% of the width gone; 1:1 -> leftover 144 and 44% gone).
+   The maximum widening is the full row, and that is the only option that removes the
+   leftover ENTIRELY with ZERO crop: 1112x626. The prose keeps a readable measure so the
+   text does not run the full 1112. */
+.section--warm:has(.ak-loopvid) .row{ flex-wrap:wrap; }
+.section--warm:has(.ak-loopvid) .row > .col{ flex:0 0 100%; max-width:none; }
+/* The owner wants the body copy to run the same length as the video, so the 68ch
+   reading cap is deliberately released here - at 1112px these lines run ~150 characters,
+   which is well past a comfortable measure. Flagged, not silently applied. */
+.section--warm:has(.ak-loopvid) .bw-prose{ max-width:none; }
+
+/* H2 on ONE line: it measures 873px set solid at 50px, so it already fits the 1112 row -
+   it was only wrapping because .bw-shead caps its h2 at max-width:774px.
+   The belief line measures 1142px at 38px, 26px too wide, so it steps down to 37px.
+   Both revert to normal wrapping below the stacking breakpoint. */
+@media (min-width:901px){
+  .section--warm:has(.ak-loopvid) .bw-shead h2{ max-width:none; white-space:nowrap; }
+  .section--warm:has(.ak-loopvid) .bw-belief{ max-width:none; font-size:37px; white-space:nowrap; }
+}
+.bw-seam.ak-seam-moved path{ fill:#FFFDFA; }
+
+/* ---- HAIRLINE AT THE TOP OF THE DARK BANDS ------------------------------------
+   Reported as a light 1px strip under the seam curve on two dark bands. It does NOT
+   exist at device-pixel-ratio 1: a row-by-row scan across the whole boundary measured
+   rgb(30,42,51) uniformly, with no deviation at any x. The geometric gap between the
+   seam's box and the section's box is EXACTLY 0 at zoom 1, 1.1, 1.25, 1.5 and 1.75, so
+   it is not a layout gap either.
+   It is a RASTERISATION seam: the seam SVG's painted bottom edge and the band's top edge
+   land on the same boundary pixel, and on a fractional-DPR display that pixel is a blend
+   which resolves toward the light ground behind - hence a lighter hairline. Overlapping
+   the two surfaces by 1px means no pixel is ever shared, at any DPR.
+   NOTE: I cannot see this defect at DPR 1, so I cannot visually confirm the cure here -
+   what IS verified below is that the surfaces now overlap rather than abut. */
+.surface-dark{ margin-top:-1px; }
+
+/* ---- SECTION-HEAD DIVIDER REMOVED --------------------------------------------
+   `.bw-shead` carried `border-top: 1px solid` above every section heading. The owner
+   identified this as the line they wanted gone. Measured 10 instances: 3 on the dark
+   bands at #3A4A56 and 7 on the light ones at #E4DCD0 - one device used site-wide, so
+   removing it only where it is most visible (the dark bands) would leave the other 7
+   inconsistent. All 10 go.
+   The 24px padding-top is KEPT: it carries the spacing rhythm above each heading and
+   is not purely the border's breathing room. Removing that too is a one-line follow-up
+   if the owner wants the heads to sit tighter. */
+.bw-shead{ border-top:0 !important; }
+
+/* ---- DARK-BAND STATEMENT: FULL CONTAINER WIDTH, FEWER LINES --------------------
+   It was capped at max-width:704px and ran FIVE lines while everything else in that band
+   (the three .bw-fstep cards) spans the full 1112 container. Measured line counts at the
+   candidate widths: 704 -> 5, 900 -> 4, 1000 -> 3, 1112 -> 3. Releasing the cap matches
+   the rest of the band AND drops it to three lines.
+   Scoped to .surface-dark so the OTHER .bw-statement (in the light "Two halves of the job"
+   section, capped at 848) is left alone. */
+.surface-dark .bw-statement{ max-width:none; }
+
+/* ---- SECTION 08: BREATHING ROOM UNDER THE VIDEO --------------------------------
+   Moving the prose below the figure left them flush against it - measured gap 0px, against
+   64px (--ds-space-xl) above the video. Uses the design's own --ds-space-lg so the rhythm
+   stays on the system's scale rather than an invented number. */
+.section--warm:has(.ak-loopvid) .ak-vidfig + .bw-prose{ margin-top:32px; }
+/* Tightened again on request. Measured the source of each gap first: the 64px ABOVE the
+   video is entirely the row's own `row-gap:64px` (.row--loose), not a margin on the belief
+   line or the figure; the gap BELOW is the rule above. "Here" could have meant either, so
+   both come down to a matched 32px - that reduces the gap under either reading and makes
+   the video sit evenly between the heading and the body copy. */
+.section--warm:has(.ak-loopvid) .row{ row-gap:32px; }
+
+/* ---- "WHAT PATIENTS SAY" LEDE: MATCH THE CARD AREA, FEWER LINES -----------------
+   The lede ran SIX lines at 576px while the two .bw-qcard testimonials below it span the
+   full 1112 container. Two separate constraints had to go, which is why capping alone did
+   nothing: the paragraph's own `max-width:576px` AND its column, a `.col--span-8` that is
+   only 729px wide and sits in a DIFFERENT row from the cards. Measured with the cap alone
+   released: still 5 lines, because the 729px column clamped it. Releasing both gives 1112
+   and THREE lines, left edge already aligned with the cards at x284.
+   Scoped by `:has(.bw-qcard)` so no other section's lede is touched. */
+section:has(.bw-qcard) .row > .col:has(.bw-lede){ flex:0 0 100%; max-width:none; }
+section:has(.bw-qcard) .bw-lede{ max-width:none; }
+
+/* ---- TESTIMONIALS DISCLAIMER CENTRED -------------------------------------------
+   `.bw-disclaimer` is capped at 672px inside a 1112px .col--full with margin 0, so it sat
+   hard left. Centred within its column rather than stretched - the 672 cap is a reading
+   measure and this is fine print, so it keeps the cap and centres.
+   Scoped by `:has(.bw-qcard)` to the testimonials section. */
+section:has(.bw-qcard) .bw-disclaimer{ margin-inline:auto; text-align:center; }
+
+/* ---- CENTRED STATEMENT + CTAs -------------------------------------------------- */
+.bw-statement{ margin-inline:auto; text-align:center; }
+/* SCOPED to the dark band, corrected this pass. Unscoped, this rule reached the ONLY other
+   .bw-actions on the page - the "Book a first visit / Call" pair in section 10 - and centred
+   CTAs the owner wanted left. Measured before: both rows justify-content:center. There are
+   exactly 2 .bw-actions on the page, so .surface-dark selects one and releases the other. */
+.surface-dark .bw-actions{ justify-content:center; }
+
+/* ---- SERVICE CARDS: ONE-ROW CAROUSEL, COMPACTED ------------------------------
+   Measured baseline: section 1551px against a 950px viewport - 601px over. Budget was
+   66+66 padding + 239 head + 40 gap + 908 grid (7 cards at 260x469 in a 4-wide grid,
+   so TWO rows). Two things had to change: one row instead of two, and a shorter card.
+   Card was 469 tall from padding 40/24, a 24px/30.7 two-line h3, a 14px/23.5 five-line
+   body and a link that wrapped to two lines in a 260px box. */
+.bw-spine.is-rail{
+  display:flex !important; grid-template-columns:none !important;
+  gap:16px; overflow-x:auto; overscroll-behavior-inline:contain;
+  scroll-snap-type:x mandatory; scroll-behavior:smooth; scrollbar-width:none;
+  /* overflow-x:auto forces overflow-y to auto too (CSS spec), which would clip the
+     cards' shadows - same trap as the ladder rail. Pad, then cancel with margin. */
+  padding-block:10px; margin-block:-10px; }
+.bw-spine.is-rail::-webkit-scrollbar{ display:none; }
+.bw-spine.is-rail > *{
+  flex:0 0 clamp(232px, 22.5%, 292px); scroll-snap-align:start; }
+.bw-spine.is-rail > .bw-card{ padding:22px 20px; }
+.bw-spine.is-rail .bw-card .bw-mark{ margin-bottom:10px; }
+.bw-spine.is-rail .bw-card h3{
+  font-size:19px; line-height:1.24; margin:4px 0 8px; }
+.bw-spine.is-rail .bw-card .bw-small{
+  font-size:13.5px; line-height:1.5; margin-bottom:12px; }
+.bw-spine.is-rail .bw-card > p:last-child{ font-size:15px; line-height:1.4; margin:0; }
+
+/* carousel controls (injected by script) */
+.ak-carousel{ position:relative; }
+.ak-carousel__btn{
+  position:absolute; top:50%; transform:translateY(-50%); z-index:4;
+  width:40px; height:40px; border-radius:50%; cursor:pointer;
+  border:1px solid var(--ds-line,#E4DCD0); background:#fff; color:#1E2A33;
+  display:grid; place-items:center; font-size:17px; line-height:1;
+  box-shadow:0 4px 14px rgba(0,0,0,.10); transition:opacity .2s, border-color .2s; }
+.ak-carousel__btn:hover{ border-color:#0A6B80; color:#0A6B80; }
+.ak-carousel__btn[disabled]{ opacity:.28; cursor:default; }
+.ak-carousel__btn--prev{ left:-19px; }
+.ak-carousel__btn--next{ right:-19px; }
+@media (max-width:700px){
+  .ak-carousel__btn{ display:none; }   /* swipe on touch */
+  .bw-spine.is-rail > *{ flex:0 0 78%; }
+}
+
+/* ---- SECTION 04 CONDITION PILLS: EQUAL WIDTHS --------------------------------
+   The chiplist was `display:flex; flex-wrap:wrap`, so every pill sized to its own
+   text (measured 80px "Sciatica" to 195px "Neck and upper back pain") and the four
+   groups wrapped 6/6/5/3 into ragged rows.
+   A grid with equal tracks makes every pill identical in width. The track floor is
+   200px because the longest label measures 195px at the chip's 13.5px - anything
+   narrower would wrap the long ones to two lines and break the balance again.
+   auto-fit means the column count follows the space with no breakpoint ladder:
+   3 up at the 709px desktop column, dropping to 2 then 1 as it narrows.
+   The image rail is deliberately untouched. */
+.bw-chiplist{
+  display:grid;
+  grid-template-columns:repeat(auto-fit, minmax(200px, 1fr));
+  gap:8px; align-items:stretch; }
+.bw-chiplist li{ display:flex; }
+.bw-chiplist li > a{ display:flex; width:100%; text-decoration:none; }
+.bw-chiplist .bw-chip{ width:100%; justify-content:center; text-align:center; }
+
+/* Below ~700px the 200px track floor can only fit ONE column, and 20 full-width rows
+   measured 1989px against the original 1425. Two columns are far more compact, but a
+   167px cell wraps the longest labels to two lines - so pin a uniform min-height and
+   centre vertically, and every pill stays exactly the same box whether its text runs
+   to one line or two. */
+@media (max-width:700px){
+  .bw-chiplist{ grid-template-columns:repeat(2, minmax(0,1fr)); gap:8px; }
+  .bw-chiplist .bw-chip{ min-height:58px; align-items:center; line-height:1.35; }
+}
+
+/* ---- SECTION 03 FIGURE: no card, no caption, fills the column ----------------
+   Measured baseline: the figure was a 340px-wide card (40px padding, 1px border,
+   #263440 ground, 18px radius) inside a 524px column, leaving 158px of dead space
+   beneath it. Scoped by structure rather than by a new class - the figure is the
+   sibling that follows the numbered list, so `.bw-pathway ~ .bw-frame` hits exactly
+   this one figure and no other `.bw-frame` on the page (there are ~36).
+   A modest radius is kept so the image does not read as unfinished against the
+   site's rounded language; the card chrome itself is gone. */
+.col:has(> .bw-pathway){ display:flex; flex-direction:column; }
+.bw-pathway ~ .bw-frame{
+  flex:1 1 auto; min-height:260px;
+  display:block; padding:0; border:0; background:none;
+  border-radius:14px; overflow:hidden;
+  /* the stock rule caps this figure at max-width:340px and centres it with auto side
+     margins (computed 24px 92px 0), which is what kept it narrower than its 524px
+     column. Both have to be released for it to fill the width. */
+  max-width:none; width:auto; margin:24px 0 0; }
+.bw-pathway ~ .bw-frame figcaption{ display:none; }
+.bw-pathway ~ .bw-frame img{
+  width:100%; height:100%; max-width:none; object-fit:cover; display:block; }
+
+/* ---- LADDER CARD HOVER GLOW WAS BEING CROPPED (<=700px) ----------------------
+   structural.css:2362 turns .bw-ladder into a horizontal scroll rail with
+   `overflow-x:auto`. Per the CSS overflow spec, a non-visible value on one axis
+   forces the other to auto as well, so overflow-Y clips too - measured
+   342x200 box around 267x192 cards, i.e. 8px of vertical slack against a hover
+   state that lifts the card 3px and paints a 44px-blur glow.
+   Fix: give the scroll box vertical padding so the glow paints INSIDE it, then
+   cancel that padding with equal negative block margins so the surrounding
+   layout is untouched (occupied height stays exactly 200px).
+   Block margins only - the source comment at structural.css:2350 rules out
+   negative INLINE bleed here because it would risk horizontal page overflow. */
+@media (max-width:700px){
+  .bw-ladder.bw-ladder:has(> :nth-child(3)){
+    padding-block: 28px 36px;
+    margin-block: -28px;
+  }
+}
+.ak-hero{ isolation:isolate; }
+.ak-hero__grid{ grid-template-columns:minmax(0,1fr) !important; }
+.ak-hero__type{ position:relative; z-index:2; }
+
+.ak-stage{ position:absolute; z-index:0; inset:0; pointer-events:none; }
+.akp{ position:absolute; right:0; bottom:0; width:var(--ak-plate-w); height:auto; display:block;
+  max-width:none; /* TRAP: structural.css:44 `img,svg,video{max-width:100%}` clamps this. */ }
+/* multiply welds the photo's white onto #FFFDFA exactly: 255x253/255 = 253 */
+.akp--room{ z-index:1; mix-blend-mode:multiply; }
+/* the people, re-painted on top. THIS is the occlusion - BG2's own alpha is the mask. */
+.akp--figs{ z-index:3; }
+
+/* ---- the typewriter slot ------------------------------------------------ */
+.akt{
+  position:absolute; z-index:2; left:var(--ak-well-left); right:var(--ak-t-gut); top:12%;
+  font-family:var(--ds-font-display,"Playfair Display",Georgia,serif);
+  font-weight:500; line-height:var(--ak-t-lead); letter-spacing:-.015em;
+  color:var(--ak-t-ink); white-space:nowrap; pointer-events:none;
+}
+.akt__l{ display:block; font-size:var(--ak-t-size); min-height:var(--ak-t-lead)em; }
+.akt__caret{
+  display:inline-block; width:.055em; height:.74em; margin-left:.05em;
+  background:currentColor; vertical-align:baseline; opacity:.55;
+  transform:translateY(.04em);
+}
+@media (prefers-reduced-motion: no-preference){
+  .akt__caret{ animation:akt-blink 1.1s steps(1,end) infinite; }
+}
+@keyframes akt-blink{ 0%,49%{opacity:.55} 50%,100%{opacity:0} }
+/* reduced motion: no typing, no caret - the slot just holds the reference wordmark */
+@media (prefers-reduced-motion: reduce){ .akt__caret{ display:none; } }
+
+/* ---- phone: the stage becomes a band ABOVE the copy --------------------- */
+@media (max-width:1100px){
+  .ak-stage{ position:relative; inset:auto; width:100vw; margin-left:calc(50% - 50vw);
+    height:var(--ak-band-h); margin-bottom:22px;
+    overflow:hidden; /* the desktop plate is deliberately bled past the right edge; without this
+       the bleed escapes the band and pushes document scrollWidth out (measured 380 vs 320
+       at a 320px viewport, while the untouched V1 page measured 320/320). */ }
+  /* TABLET 601-1100px: a cropped window of the portrait composite. */
+  picture{ display:contents; }
+  .akp--room, .akp--figs{ position:absolute; inset:0; width:100%; height:100%;
+    object-fit:cover; object-position:50% 22%; right:auto; bottom:auto; }
+  .akp--figs{ display:none; }   /* the landscape cutout cannot register with a portrait crop */
+  .akt{ left:5vw; right:var(--ak-t-gut); top:26px; }
+  :root{
+    --ak-band-h:  380px;
+    --ak-t-avail: calc(100vw - 5vw - var(--ak-t-gut));
+    /* In the band the slot goes full-width, so WIDTH stops being the binding constraint and
+       the font runs into its 132px ceiling while the band stays 300px tall — measured 5px of
+       clearance at 1024. Cap by band height as well: 26px top + 2 lines + 24px breathing. */
+    --ak-t-size:  clamp(30px, min(calc(var(--ak-t-avail) / 5.63),
+                                  calc((var(--ak-band-h) - 50px) / 2.04)), 132px);
+  }
+
+  .ak-hero__grid{ display:flex; flex-direction:column; }
+  .ak-stage{ order:-1; }
+}
+
+/* ===== PHONE (<=600px): the ENTIRE MBG1 frame, full bleed, nothing cropped =====
+   The band takes the asset's own 390:844 ratio, so `cover` is lossless - every pixel of the
+   owner's composite is shown edge to edge. Occlusion is restored here by MBG1-cut.png, which
+   is BG2's alpha warped into this crop's geometry (NCC 0.9975, scale 0.7950, offset
+   -827.55/+70.50; 0.46% of unambiguous figure ink falls outside it). Paint order is therefore
+   the same three layers as desktop: plate -> type -> cutout. */
+@media (max-width:600px){
+  :root{
+    --ak-t-avail: calc(100vw - 5vw - var(--ak-t-gut));
+    --ak-t-size:  clamp(30px, calc(var(--ak-t-avail) / 5.63), 132px);
+  }
+  /* ---- CLOSE THE GAP UNDER THE PHOTO -------------------------------------
+     Measured total gap from the last image content (y781 of 844) to the lede: 129px
+       63px  empty white inside the frame itself
+       26px  .ak-stage margin-bottom
+       40px  the flex gap on .ak-hero__grid
+     The frame's own 63px tail is pure #FFFFFF, the same colour as the ground, so the copy
+     can start inside it with no seam and the whole image still renders. Zero the two CSS
+     contributions and pull up 15px into the tail: 129px -> 48px. */
+  .ak-stage{ aspect-ratio:390/844; height:auto; margin-bottom:-15px; }
+  .ak-hero__grid{ gap:0 !important; }
+  /* a full-bleed plate should start flush under the sticky header - the hero's own top padding
+     was inserting a 71px band of paper above it (measured: header ends 83, plate began 154). */
+  .ak-hero{ padding-top:0 !important; }
+  .ak-hero > .container{ padding-top:0 !important; }
+  .akp--room, .akp--figs{ object-position:50% 50%; }
+  .akp--figs{ display:block; }          /* occlusion is back on */
+
+  /* white ground is now global - see the base block above */
+
+  /* ---- EYEBROW + H1 LIFTED INTO THE IMAGE'S CLEAR ZONE --------------------
+     Taken out of flow so the lede/doctor card/CTAs close up beneath the photo.
+     The frame's own subject starts at y287 of 844, so the clear zone above it
+     carries the brow and the headline, and the animated service line sits below
+     them running into the figures. */
+  /* .ak-hero__type is position:relative, so absolute children would anchor to IT (which sits
+     below the photo) rather than to the hero. Make it static here so the containing block
+     becomes .ak-hero (position:relative, structural.css:2535) and `top` is measured from the
+     top of the image. Its remaining children are all in normal flow below the photo, so they
+     do not need the stacking context. */
+  .ak-hero__type{ position:static; }
+  .ak-hero__brow, .ak-hero h1{
+    position:absolute; z-index:4; left:5vw; right:var(--ak-t-gut); margin:0;
+  }
+  /* Vertical rhythm in the frame's clear zone. The figures start at y287 and the animated
+     line must keep running into them, so the extra breathing room under the nav is taken from
+     the H1->animated gap (was 65px) rather than by pushing the animated line down. */
+  .ak-hero__brow{ top:var(--ak-m-brow,58px); }
+  /* eyebrow rule removal is now global - see the base block above */
+  .ak-hero h1{ top:var(--ak-m-h1,118px); }
+  /* the animated line, below the headline and overlapping the people */
+  .akt{ top:var(--ak-m-slot,285px); }   /* no-JS safe default; JS tightens it below */
+  /* narrow phones wrap the H1 to 4 lines, so the whole stack needs to start higher
+     and the animated line drops a little to clear it */
+  /* Measured, not guessed: at 320px the H1 wraps to FIVE lines (185px), not four, so the
+     first pass collided with the animated line by 13px. Values below are derived from that:
+     brow 36-78, H1 90-275, animated from 300. */
+  @media (max-width:360px){
+    :root{ --ak-m-brow:36px; --ak-m-h1:90px; --ak-m-slot:312px; }
+  }
+  :root{ --ak-t-size: clamp(28px, calc(var(--ak-t-avail) / 7.2), 132px); }
+}
+
+/* ---- SECTION 10: PHOTO PANEL RIGHT, RULE TRIMMED TO THE MEASURE ---------------
+   The section shipped as ONE .col--span-8 in a 1112px row, so there was no right-hand
+   track to put a photo in. Split to span-7 (637) + span-5 (451); the h2 measures 519px
+   of ink, so the heading still sets on one line in the narrower column.
+
+   The text column stays FIRST in the DOM. structural.css states the house rule on
+   .row--mediaright: a stacked phone must read heading-then-media. Source order already
+   gives that AND puts the photo right above 900px, so no `order` is needed.
+
+   The rule: .bw-tailask is capped at 46rem and the column was 729, so its 2px accent
+   border ran the full 729 while the prose it underlines is capped at 38rem / 608 - a
+   121px overhang. Re-capped to the prose measure so the line stops with the text. */
+.bw-educate .bw-tailask{ max-width:38rem; }
+
+.ak-costfig{
+  margin:0; height:100%; min-height:260px;
+  border-radius:var(--ds-r-surface); overflow:hidden;
+}
+.ak-costfig img{
+  display:block; width:100%; height:100%;
+  object-fit:cover; object-position:50% 50%;
+}
+/* Below 900px structural.css collapses every .col--span-* to 100%, so the panel becomes a
+   full-width band. Drop the fill-the-column height there and let the photo keep its own
+   3:2 frame - a 451x512 crop is right beside a 512px text column and wrong on its own. */
+@media (max-width:900px){
+  .ak-costfig{ height:auto; min-height:0; }
+  .ak-costfig img{ height:auto; aspect-ratio:3/2; }
+}

@@ -1,0 +1,3332 @@
+/* ============================================================================
+   applied-kinesiology-sacramento — STRUCTURAL SHEET (token-pure)
+   SYSTEM stage. Locked after the ① BRAND-CARD pick (concept-c) and the confirmed FEEL.
+
+   TOKEN-PURE BY CONTRACT: ZERO brand hex here. Every colour, radius, shadow, space and
+   duration resolves through a var() defined in applied-kinesiology-sacramento-tokens.css.
+   That is what lets a section flip to .surface-dark and have every descendant invert.
+
+   MEASURE DISCIPLINE (G8 A3): `ch` sits ONLY on display-font headings (h1/h2/h3), where it
+   resolves against the display face. Every body-font measure — and the pull-quote — uses rem.
+   NOTE for future maintainers: G8's display-font escape hatch tests for `font-family:var(--font…)`,
+   but BRAND-TOKEN-SCHEMA mandates `--ds-font-display` / `--ds-font-body`, so that hatch can never
+   fire on a schema-compliant sheet. rem sidesteps the mismatch without weakening the measure.
+
+   CARRIES: (1) the forced DOM grammar section > .container > .row > .col > OBJECT;
+   (2) typography applied; (3) section bands + the A2 arc seam; (4) object-level skins
+   (bw- and kit- skins) live on OBJECTS; structure layers carry LAYOUT ONLY.
+
+   DERIVED FROM: _design/feel-specimen.html (owner-confirmed 2026-08-10),
+   _handoff/visual-direction.md (C7), _PAGE-COMPOSITION-LIBRARY.md §V6 medical-health.
+   ============================================================================ */
+
+*, *::before, *::after { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; }
+
+body {
+  margin: 0;
+  background: var(--ds-bg-surface);
+  color: var(--ds-ink);
+  font-family: var(--ds-font-body);
+  font-size: 17px;
+  line-height: 1.68;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  /* Long unbreakable tokens (bare domains, IDs) must fold rather than widen the page.
+     Owner mobile pass 2026-08-21: "appliedkinesiologysacramento.com" in the /sitemap lede
+     is 32 chars with no break opportunity, and at 320px it pushed the DOCUMENT to 335px —
+     the only horizontal overflow measured across 48 pages x 7 widths. break-word only acts
+     on a word that would otherwise overflow, so text that already fits is untouched; this
+     is a floor against the next bare URL someone writes, not a restyle. */
+  overflow-wrap: break-word;
+}
+
+img, svg, video { max-width: 100%; height: auto; display: block; }
+
+/* The UA stylesheet's `figure { margin: 1em 40px }` was silently sizing every figure that did not
+   declare its own margin. Measured 17px/40px on .bw-portrait and .bw-motif, which shrank the hero
+   portrait box to 351.3px inside a 431.3px column and forced a 1.284x upscale of a 259px source.
+   Every other figure in this build sets margin explicitly, so this reset reaches only those two. */
+figure { margin: 0; }
+
+/* ============================================================
+   1. THE FORCED DOM GRAMMAR — structure layers carry LAYOUT ONLY
+   ============================================================ */
+
+section { padding: var(--ds-section-py) 0; position: relative; }
+
+.container {
+  width: 100%;
+  max-width: var(--ds-container-max);
+  margin-inline: auto;
+  padding-inline: var(--ds-space-md);
+}
+.container--full { max-width: none; padding-inline: 0; }
+
+/* --row-gap is the SINGLE source for both the flex gap and the col span maths.
+   A span that subtracts a FIXED gap while the row uses a different one overflows the
+   line and silently wraps: span-7 + span-5 = 100% - 48px, plus a 64px .row--loose gap
+   = 100% + 16px. Each span now subtracts its share of the ACTUAL gap, so any span set
+   sums to exactly 100% at every gap. */
+.row { --row-gap: var(--ds-space-md); display: flex; flex-wrap: wrap; gap: var(--row-gap); }
+/* `gap` only spaces COLUMNS inside one row; consecutive .row siblings had NO separation at all
+   (measured 0px between a heading row and the cards row under it on every multi-row section of
+   about). That single missing rhythm is what made the page read as cramped. Scoped to `.container`
+   so the full-bleed seam rows are untouched, and a seam row is excluded outright because its whole
+   job is to sit flush against the band it hands onto. */
+.container > .row + .row { margin-top: var(--ds-space-lg); }
+.row:has(.bw-seam) { margin-top: 0; }
+.row--tight   { --row-gap: var(--ds-space-sm); }
+.row--loose   { --row-gap: var(--ds-space-xl); }
+.row--center  { align-items: center; }
+.row--between { justify-content: space-between; }
+/* A card row whose item count does not divide by its span class wraps an ORPHAN: about shipped
+   4 x col--span-4 (a 3-up class) so the 4th dropped onto its own line and sized to its own
+   content (measured 192.4px against three 239.4px siblings), and patient-info shipped 5 for a
+   3+2 split. Fixed spans cannot express "however many there are, evenly". This variant lets the
+   grid decide the column count, so any card count fills its lines and every cell is equal height.
+   .col keeps its place in the DOM grammar (section > container > row > col > OBJECT); it just
+   stops carrying a flex basis. */
+.row--cards {
+  display: grid;
+  /* 15.5rem forced a 4-column maximum, so patient-info's FIVE cards still split 4 + 1 and the
+     orphan sized itself (measured 316/316/316/316/286.5). 12rem lets auto-fit reach five tracks at
+     the 1160 container while still collapsing to exactly three or four when that is the count —
+     auto-fit removes empty tracks, so a 3-card row stays a 3-up. grid-auto-rows:1fr is the backstop:
+     if a count ever does wrap, every row is still the same height. */
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 12rem), 1fr));
+  grid-auto-rows: 1fr;
+  align-items: stretch;
+}
+/* 12rem lets five cards share one line, which is right for SHORT cards but not for cards carrying a
+   real paragraph: patient-info's five measured 203px wide and 366px TALL — a column of text one
+   phrase wide. --wide raises the floor to 20rem so the same grid lands three per line at ~355px,
+   which is a readable measure. Same auto-fit rules, so it still collapses cleanly on narrow screens. */
+.row--cards--wide { grid-template-columns: repeat(auto-fit, minmax(min(100%, 20rem), 1fr)); }
+.row--cards > .col { flex: initial; width: auto; min-width: 0; }
+
+.col { flex: 1 1 0%; min-width: 0; }
+.col--full   { flex: 0 0 100%; width: 100%; }
+.col--span-3 { flex: 0 0 calc(25% - var(--row-gap) * 3 / 4); }      /* 4-up */
+.col--span-4 { flex: 0 0 calc(33.333% - var(--row-gap) * 2 / 3); }  /* 3-up */
+.col--span-5 { flex: 0 0 calc(41.666% - var(--row-gap) / 2); }     /* pairs with 7 */
+.col--span-6 { flex: 0 0 calc(50% - var(--row-gap) / 2); }         /* 2-up */
+.col--span-7 { flex: 0 0 calc(58.333% - var(--row-gap) / 2); }     /* pairs with 5 */
+.col--span-8 { flex: 0 0 calc(66.666% - var(--row-gap) / 2); }     /* pairs with 4 */
+
+/* ============================================================
+   2. TYPOGRAPHY
+   ============================================================ */
+
+h1, h2, h3, h4 {
+  font-family: var(--ds-font-display);
+  color: var(--ds-ink-heading);
+  /* .45em put ~18px under an h2 while `p { margin-bottom: 1.1em }` puts ~18.7px BETWEEN paragraphs,
+     so a heading was spaced exactly like an ordinary paragraph break and never bound to the text it
+     introduces. Measured on the built pages: h2 sat 12px below its eyebrow but 18px above its own
+     subtext. Tightened below, and given real room ABOVE (see the rule under this one) so the
+     proximity now says "this heading belongs to what follows". */
+  /* CORRECTION: I first cut this to .34em, reading "heading to subtext" as bind-them-tighter. That
+     was wrong and made the page cramped — measured 13.6px under an h2 and 7.8px under a card's h3.
+     .5em gives 20px under an h2 and 11.5px under an h3, which reads as a deliberate relationship
+     rather than a squeeze, while still being clearly less than the space ABOVE (see below). */
+  margin: 0 0 .5em;
+  line-height: 1.14;
+  letter-spacing: -.012em;
+}
+/* Space ABOVE a heading separates it from the block that ended; space BELOW binds it to its own
+   text. Only applies once there IS something above it. */
+:where(main) h2:not(:first-child),
+:where(main) h3:not(:first-child),
+:where(main) h4:not(:first-child) { margin-top: .62em; }
+/* An eyebrow, or the accent rule, forms ONE unit with the heading under it — never break that. */
+:where(main) .bw-eyebrow + h1, :where(main) .bw-eyebrow + h2,
+:where(main) .bw-eyebrow + h3, :where(main) .bw-eyebrow + h4,
+:where(main) .bw-rule + h1,    :where(main) .bw-rule + h2,
+:where(main) .bw-crumbs + h1,  :where(main) .bw-crumbs + h2 { margin-top: 0; }
+h1 { font-size: clamp(36px, 4.4vw, 58px); line-height: 1.08; max-width: 20ch; }
+h2 { font-size: clamp(28px, 3vw, 40px); max-width: 20ch; }
+h3 { font-size: clamp(20px, 1.6vw, 24px); line-height: 1.28; max-width: 28ch; }
+h4 { font-size: 19px; }
+
+p { margin: 0 0 1.1em; }
+p:last-child { margin-bottom: 0; }
+
+a { color: var(--ds-accent-ink); text-underline-offset: 3px; }
+a:hover { color: var(--ds-accent-deep); }
+
+.bw-eyebrow {
+  font-family: var(--ds-font-body);
+  font-size: 12.5px;
+  letter-spacing: .15em;
+  text-transform: uppercase;
+  color: var(--ds-accent-ink);
+  font-weight: 700;
+  margin: 0 0 12px;
+}
+/* --- .bw-shead — THE SECTION-HEADER SYSTEM (home) ---------------------------------------------
+   WHAT WAS THERE. All ten home sections opened with the identical block: a 12.5px teal all-caps
+   eyebrow, a serif h2 under it, sometimes a lede under that, all left-aligned and all stacked. Ten
+   times, with no variation and nothing holding them to the page's structure. C7 §0 measures the
+   brand energy as `bold` and warns in terms that "a restrained, generic-medical treatment would be
+   a tone regression, not an upgrade" — a quiet label floating above a heading IS that regression,
+   and it is the shape every template has shipped since about 2014.
+
+   WHAT THIS DOES, and why each part earns its place:
+   - A HAIRLINE spanning the container turns each header into an architectural edge instead of text
+     floating in whitespace. It is the cheapest possible way to make a page read as composed.
+   - AN ORDINAL, generated by a CSS counter rather than typed into the copy, so the ten sections read
+     as one numbered argument and a reader always knows how deep they are. Nothing to maintain: the
+     numbering renumbers itself if a section moves, and it never enters the approved copy.
+   - THE HEADING AND THE LEDE SIT SIDE BY SIDE above 900px instead of stacked. This is the actual
+     modernising move — it is what separates a current editorial header from a 2014 one — and it also
+     SHORTENS the page, which matters on a home page measured at 23.2 screens on a phone.
+   Below 900px everything stacks, so the mobile reading order is unchanged. */
+main { counter-reset: bw-shead; }
+.bw-shead {
+  counter-increment: bw-shead;
+  border-top: 1px solid var(--ds-line);
+  padding-top: var(--ds-space-md);
+  margin-bottom: var(--ds-space-lg);
+}
+.bw-shead .bw-eyebrow {
+  display: flex; align-items: baseline; gap: .75em;
+  margin: 0 0 var(--ds-space-sm);
+}
+/* decimal-leading-zero gives 01..10 without a hand-typed number anywhere in the copy */
+.bw-shead .bw-eyebrow::before {
+  content: counter(bw-shead, decimal-leading-zero);
+  font-family: var(--ds-font-display);
+  font-size: 1.35em; font-weight: 600; letter-spacing: 0;
+  font-variant-numeric: tabular-nums;
+  color: var(--ds-accent-deep);
+}
+.bw-shead h2 { margin: 0; max-width: 18ch; font-size: clamp(30px, 4vw, 50px); letter-spacing: -.02em; }
+.bw-shead > .bw-lede,
+.bw-shead > .bw-statement { margin: var(--ds-space-sm) 0 0; }
+
+@media (min-width: 900px) {
+  .bw-shead {
+    display: grid;
+    grid-template-columns: minmax(0, 7fr) minmax(0, 5fr);
+    column-gap: var(--ds-space-xl);
+    /* START, changed from end on 2026-08-19 on the owner's call. Bottom-aligning the pair
+       meant the SHORTER item got pushed down by the difference in their heights, and on
+       §02 that difference is large: the statement runs 307px against a 171px heading, so
+       the h2 began 136px below the statement it belongs to. The reader met the supporting
+       line first and the heading second, which inverts the hierarchy the type sizes are
+       working to establish. Aligned to the start, both columns begin on the same line and
+       the eye takes the heading first. */
+    align-items: start;
+  }
+  .bw-shead .bw-eyebrow { grid-column: 1 / -1; }
+  .bw-shead h2 { grid-column: 1; }
+  .bw-shead > .bw-lede,
+  .bw-shead > .bw-statement { grid-column: 2; margin: 0; max-width: none; align-self: start; }
+  /* a header with no lede has nothing to put in the second column, so it takes the full measure
+     back rather than leaving a dead half-row beside the heading */
+  .bw-shead:not(:has(> .bw-lede, > .bw-statement)) { grid-template-columns: minmax(0, 1fr); }
+  .bw-shead:not(:has(> .bw-lede, > .bw-statement)) h2 { max-width: 24ch; }
+}
+/* the accent-deep ordinal is a CTA-surface colour and does not clear AA on the dark bands, where
+   the eyebrow already runs on the lightened --ds-accent-ink */
+.surface-dark .bw-shead .bw-eyebrow::before { color: var(--ds-accent-ink); }
+
+.bw-lede       { font-size: 19px; color: var(--ds-ink-soft); max-width: 34rem; }
+.bw-body       { color: var(--ds-ink); max-width: 38rem; }
+.bw-small      { font-size: 14px; color: var(--ds-ink-soft); }
+.bw-disclaimer { font-size: 13.5px; color: var(--ds-ink-soft); max-width: 42rem; }
+
+/* ============================================================
+   3. SECTION BANDS + the A2 arc seam
+   ============================================================ */
+
+.section--soft { background-image: linear-gradient(180deg, var(--ds-bg-surface) 0%, var(--ds-bg-surface-2) 100%); }
+.section--warm { background-image: linear-gradient(180deg, var(--ds-bg-warm) 0%, var(--ds-bg-surface-2) 100%); }
+.section--hero {
+  overflow: hidden;
+  background-image:
+    radial-gradient(90% 120% at 88% -20%, var(--ds-accent-soft) 0%, transparent 60%),
+    linear-gradient(180deg, var(--ds-bg-warm) 0%, var(--ds-bg-surface) 78%);
+}
+.section--dark {
+  background-image:
+    radial-gradient(80% 120% at 10% 0%, var(--ds-accent-soft) 0%, transparent 55%),
+    linear-gradient(180deg, var(--ds-primary-deep) 0%, var(--ds-primary-deep) 100%);
+}
+
+/* 78px is LOAD-BEARING for .bw-seam--band and must not be reduced: those seams sit IN FLOW
+   and carry margin-bottom: calc(var(--ds-section-py) * -1) to cancel the owning section's
+   bottom padding, and a negative bottom margin can only collapse a box as far as its own
+   height. Dropping this to 36px on 2026-08-25 left ~14px of that pull unrealised and the
+   section-rhythm gate failed at 375px (leading 48 vs trailing 62). The mobile-slope fix the
+   owner asked for lives on the --flush variants below, which are absolutely positioned and
+   therefore cannot affect flow rhythm. */
+.bw-seam { display: block; width: 100%; height: 78px; margin-bottom: -1px; }
+.bw-seam--flip { transform: rotate(180deg); margin: -1px 0 0; }
+
+/* ============================================================
+   4. OBJECT-LEVEL SKINS (bw- and kit- prefixes)
+   ============================================================ */
+
+.bw-btn {
+  display: inline-flex; align-items: center; gap: 9px;
+  padding: 15px 26px;
+  border-radius: var(--ds-r-control);
+  font-family: var(--ds-font-body);
+  font-weight: 700; font-size: 16px;
+  text-decoration: none; cursor: pointer;
+  border: 1px solid transparent;
+  background-clip: padding-box;
+  transition: transform var(--ds-dur-fast) var(--ds-ease-out),
+              box-shadow var(--ds-dur) var(--ds-ease),
+              background-color var(--ds-dur) var(--ds-ease);
+}
+.bw-btn:hover { transform: translateY(-2px); box-shadow: var(--ds-shadow-lift); }
+.bw-btn:focus-visible { outline: 3px solid var(--ds-accent-deep); outline-offset: 3px; }
+.bw-btn--primary { background-color: var(--ds-accent-deep); color: var(--ds-ink-on-dark); }
+.bw-btn--quiet   { background-color: transparent; color: var(--ds-accent-ink); border-color: var(--ds-line); }
+
+/* ---- FILLED CONTROLS OWN THEIR TEXT COLOUR IN EVERY STATE -------------------------------------
+   The generic `a:hover { color: var(--ds-accent-deep) }` above is specificity (0,1,1) and beats
+   `.bw-btn--primary` (0,1,0), so hovering a SOLID button repainted its label to the accent — the
+   exact colour of that button's own fill. Measured on the built page: rest 5.42:1, hover
+   **1.0:1**, rgb(10,116,138) text on rgb(10,116,138) ground. The label disappeared.
+   A control with a filled background must never inherit a link colour, so every filled variant
+   re-asserts its own on-fill ink for :hover and :focus-visible. .bw-filter.is-active survives today
+   only because its rule happens to sit one line AFTER .bw-filter:hover — pinned here so it no
+   longer depends on source order. */
+.bw-btn--primary:hover, .bw-btn--primary:focus-visible { color: var(--ds-ink-on-dark); }
+.bw-filter.is-active:hover, .bw-filter.is-active:focus-visible { color: var(--ds-ink-on-dark); }
+
+.bw-card {
+  padding: var(--ds-space-lg) var(--ds-space-md);
+  background: var(--ds-bg-surface);
+  border: 1px solid var(--ds-line);
+  border-radius: var(--ds-r-surface);
+  box-shadow: var(--ds-shadow-card);
+  transition: transform var(--ds-dur) var(--ds-ease),
+              box-shadow var(--ds-dur) var(--ds-ease),
+              border-color var(--ds-dur) var(--ds-ease);
+}
+/* EQUAL-HEIGHT CARDS — but ONLY where the card IS the column.
+   .row is flex so the .col already stretches to its tallest sibling; the card never filled it, so a
+   shorter description left a visibly shorter card (measured 4 of 4 rows ragged, worst 47px on
+   about's 4-up: 215.9/239.4/215.9/192.4 inside cols that were all 239.4).
+   `height:100%` on EVERY .bw-card was too broad and I shipped a real regression with it: contact's
+   enquiry FORM also carries .bw-card, but it sits BELOW an h2 and a paragraph inside its column, so
+   100% resolved against a height that never accounted for them and the form overflowed its section
+   by a measured 81.9px, spilling into the band underneath. `:only-child` is the honest condition —
+   a card that owns its column stretches; a card sharing a column with other content sizes to its
+   own content, as it always did. */
+.row > .col > .bw-card:only-child,
+.row--cards > .col > .bw-card {
+  height: 100%;
+  display: flex; flex-direction: column;
+}
+/* with equal heights the trailing action would float wherever the copy ended; pinning it to the
+   bottom aligns every "Read more" across the row, which is what makes the row read as a set */
+.bw-card > .bw-btn, .bw-card > .bw-ghostlink { margin-top: auto; align-self: flex-start; }
+
+/* Card TITLE links are the card's navigation target - the card itself is a <div>/
+   <article>, not an anchor, and there is no card-level click handler, so the title
+   IS the target. Measured 36 of them under 44px across 13 pages (h3 titles 180x27,
+   body links 204x20).
+   Hit band rather than padding, for the same reason as .bw-ghostlink: these are
+   inline anchors inside an h3/p, so padding them would move the card's type.
+   Verified safe before applying: the nearest horizontally-overlapping anchor to any
+   of these is 48px away (tightest: /auto-accident-injury title -> its Book button),
+   and a 44px band on a 27px box reaches only 8.5px, so it cannot cover a neighbour. */
+@media (pointer: coarse){
+  .bw-card h3 > a, .bw-card > p > a{position:relative}
+  .bw-card h3 > a::after, .bw-card > p > a::after{content:""; position:absolute;
+    left:0; right:0; top:50%; transform:translateY(-50%); height:44px}
+}
+/* a .bw-stat used as a card's headline figure carries no bottom margin of its own, so the text
+   under it sat at a measured 0px. Give the figure its own breathing room. */
+.bw-card > .bw-stat { margin-bottom: var(--ds-space-sm); }
+.bw-card > .bw-stat + p { margin-top: 0; }
+/* a card's title sat 11.5px off its own body text — the tightest pair left on the page after the
+   row rhythm landed. --ds-space-sm (14px) is the scale's answer for a within-component gap. */
+.bw-card h3, .bw-tile b, .bw-step b { margin-bottom: var(--ds-space-sm); }
+/* block components carry no bottom margin, so a paragraph following one butted straight against it
+   (measured 0px after .bw-ladder and .bw-chiplist on the home page). */
+.bw-ladder + p, .bw-chiplist + p, .bw-figures + p, .bw-notheld + p { margin-top: var(--ds-space-md); }
+.bw-card > p:last-child, .bw-card > .bw-small:last-child { margin-bottom: 0; }
+.bw-card:hover { transform: translateY(-4px); box-shadow: var(--ds-shadow-lift); border-color: var(--ds-accent); }
+
+.bw-glass {
+  padding: var(--ds-space-md);
+  border-radius: var(--ds-r-surface);
+  background-image: linear-gradient(180deg, var(--ds-accent-soft) 0%, transparent 100%);
+  border: 1px solid var(--ds-line);
+  backdrop-filter: blur(9px);
+}
+
+.bw-chip {
+  display: inline-flex; align-items: center; gap: 7px;
+  padding: 7px 14px;
+  border-radius: var(--ds-r-pill);
+  background: var(--ds-bg-surface);
+  border: 1px solid var(--ds-line);
+  font-size: 13.5px; font-weight: 600;
+  box-shadow: var(--ds-shadow-card);
+}
+.bw-chip b { color: var(--ds-accent-ink); }
+
+.bw-portrait {
+  position: relative; aspect-ratio: 1 / 1;
+  border-radius: var(--ds-r-pill);
+  overflow: hidden;
+  border: 10px solid var(--ds-accent-soft);
+  box-shadow: var(--ds-shadow-lift);
+  /* images_team_doctor.jpg is only 259x258. With the figure margin reset above, a 400px cap would
+     paint the image at 380px = a 1.47x upscale; 290px paints it at 270px = 1.042x, which is below
+     the visible-softening threshold. This cap is a CONSEQUENCE OF THE SOURCE FILE, not a design
+     preference: supply a portrait at >=800px and this can rise again. */
+  max-width: 290px;
+  margin-inline: auto;
+}
+.bw-portrait img {
+  width: 100%; height: 100%; object-fit: cover;
+  transition: transform var(--ds-dur-slow) var(--ds-ease-out);
+}
+.bw-portrait:hover img { transform: scale(1.03); }
+
+.bw-mark {
+  width: 46px; height: 46px;
+  border-radius: var(--ds-r-pill);
+  display: grid; place-items: center;
+  background: var(--ds-accent-soft);
+  color: var(--ds-accent-ink);
+  margin-bottom: 16px;
+}
+
+.bw-stat b {
+  display: block;
+  font-family: var(--ds-font-display);
+  font-size: 34px; line-height: 1;
+  color: var(--ds-ink-heading);
+}
+.bw-stat span { display: block; margin-top: 8px; font-size: 13.5px; color: var(--ds-ink-soft); }
+
+.bw-input, .bw-textarea, .bw-select {
+  width: 100%;
+  padding: 14px 16px;
+  border: 1px solid var(--ds-line);
+  border-radius: var(--ds-r-control);
+  background: var(--ds-bg-surface);
+  color: var(--ds-ink);
+  font: inherit;
+  transition: border-color var(--ds-dur) var(--ds-ease), box-shadow var(--ds-dur) var(--ds-ease);
+}
+.bw-input:focus, .bw-textarea:focus, .bw-select:focus {
+  border-color: var(--ds-accent);
+  box-shadow: 0 0 0 3px var(--ds-accent-soft);
+}
+.bw-label { display: block; font-size: 14px; font-weight: 600; margin-bottom: 7px; color: var(--ds-ink); }
+
+.bw-quote {
+  font-family: var(--ds-font-display);
+  font-size: clamp(24px, 2.7vw, 36px);
+  line-height: 1.32;
+  max-width: 26rem;
+  margin: 0;
+}
+.bw-attrib { margin-top: var(--ds-space-md); font-size: 14.5px; color: var(--ds-ink-soft); }
+
+/* --- .bw-qcard — the home testimonial as an OBJECT, not floating text ------------------------
+   WAS: two bare columns, each an eyebrow + a blockquote + an attribution line, with no chrome of
+   any kind — so on a soft band they read as loose paragraphs rather than as quotations, and the
+   two columns could not hold equal height. The honesty label "Representative example" was also
+   printed TWICE per card (once as the eyebrow, again inside the attribution), four times in a band
+   whose whole job is to be believed once.
+   The label is load-bearing and stays — these are declared placeholders until the six real
+   testimonials are recovered — but it belongs in ONE place, as a chip in the card's footer where
+   an attribution normally sits. The card is a <figure>/<figcaption>, which is what a quotation with
+   an attribution actually is. */
+.bw-qcard {
+  position: relative;
+  display: flex; flex-direction: column;
+  height: 100%; margin: 0;
+  padding: var(--ds-space-lg);
+  background: var(--ds-bg-surface);
+  border: 1px solid var(--ds-line);
+  border-radius: var(--ds-r-surface);
+  box-shadow: var(--ds-shadow-card);
+}
+.bw-qcard__mark { width: 32px; height: 32px; color: var(--ds-accent); flex: 0 0 auto; }
+/* the 26rem reading cap is right for a full-bleed pull-quote and wrong inside a card, where it
+   leaves a ragged column of dead space against the card's own padding */
+.bw-qcard .bw-quote {
+  max-width: none;
+  font-size: clamp(20px, 1.9vw, 27px);
+  margin: var(--ds-space-sm) 0 var(--ds-space-md);
+}
+.bw-qcard__foot {
+  margin-top: auto;                       /* pins the attribution to the card floor, so two cards
+                                             of unequal quote length still align at the bottom */
+  display: flex; flex-wrap: wrap; align-items: center; gap: var(--ds-space-sm);
+  padding-top: var(--ds-space-md);
+  border-top: 1px solid var(--ds-line);
+  font-size: 14.5px; color: var(--ds-ink-soft);
+}
+.bw-qcard__tag {
+  display: inline-block;
+  padding: 4px 10px; border-radius: var(--ds-r-pill);
+  background: var(--ds-accent-soft); color: var(--ds-accent-deep);
+  font-size: 11.5px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase;
+  white-space: nowrap;
+}
+
+/* ============================================================
+   4b. T-LEGAL DOCUMENT OBJECTS (.bw-legal / .bw-toc)
+   Required by LEGAL-SECTIONS.md (10-structure-library/sections/legal/menu.md) and
+   enforced by verify-legal-is-document.mjs (G-LEGAL-DOC): a T-LEGAL page IS a
+   document — one calm reading measure of flowing prose, anchored headings, an
+   optional jump-index, and NO imagery. These are OBJECT skins; the grammar layers
+   above still carry layout only. Token-pure like the rest of this sheet, and the
+   measures use rem (body font), never ch (G8 A3 measure discipline).
+   ============================================================ */
+
+.bw-legal { max-width: 47rem; }
+.bw-legal > :first-child { margin-top: 0; }
+.bw-legal > :last-child  { margin-bottom: 0; }
+.bw-legal p  { color: var(--ds-ink-soft); max-width: 40rem; margin: 0 0 var(--ds-space-md); }
+.bw-legal h2 { margin: var(--ds-space-xl) 0 var(--ds-space-sm); scroll-margin-top: 120px; }
+.bw-legal h3 { margin: var(--ds-space-lg) 0 var(--ds-space-xs); scroll-margin-top: 120px; }
+.bw-legal ul, .bw-legal ol { margin: 0 0 var(--ds-space-md); padding-left: 1.4em; color: var(--ds-ink-soft); }
+.bw-legal li { max-width: 39rem; margin: 0 0 .45em; }
+.bw-legal li::marker { color: var(--ds-accent-ink); }
+.bw-legal a { text-decoration: underline; }
+.bw-legal strong, .bw-legal b { color: var(--ds-ink); font-weight: 700; }
+.bw-legal dl { margin: 0 0 var(--ds-space-md); max-width: 40rem; }
+.bw-legal dt { font-weight: 700; color: var(--ds-ink); margin-top: var(--ds-space-sm); }
+.bw-legal dd { margin: .2em 0 0; color: var(--ds-ink-soft); }
+.bw-legal hr { border: 0; height: 1px; background: var(--ds-line); margin: var(--ds-space-lg) 0; }
+
+/* the effective-date line under the document title */
+.bw-legal__effective {
+  font-size: 13px; letter-spacing: .04em; text-transform: uppercase;
+  color: var(--ds-ink-soft); margin: 0 0 var(--ds-space-md);
+}
+
+/* the honesty fence — a visible note that a document is a working draft, never an
+   assertion of binding legal text. Left-accented so it reads above the prose. */
+.bw-legal__callout {
+  border: 1px solid var(--ds-line);
+  border-left: 3px solid var(--ds-accent-deep);
+  border-radius: var(--ds-r-control);
+  background: var(--ds-accent-soft);
+  padding: var(--ds-space-sm) var(--ds-space-md);
+  margin: 0 0 var(--ds-space-lg);
+  font-size: 14.5px; line-height: 1.62; color: var(--ds-ink);
+  max-width: 42rem;
+}
+
+/* the in-document jump index (LEGAL-SECTIONS #2) */
+.bw-toc {
+  border: 1px solid var(--ds-line);
+  border-radius: var(--ds-r-surface);
+  background: var(--ds-bg-surface-2);
+  box-shadow: var(--ds-shadow-card);
+  padding: var(--ds-space-md);
+  margin: 0 0 var(--ds-space-lg);
+  max-width: 42rem;
+}
+.bw-toc__title {
+  font-family: var(--ds-font-body);
+  font-size: 12.5px; letter-spacing: .15em; text-transform: uppercase;
+  color: var(--ds-accent-ink); font-weight: 700; margin: 0 0 var(--ds-space-sm);
+}
+.bw-toc__list { list-style: none; margin: 0; padding: 0; display: grid; gap: 2px; }
+.bw-toc__item { margin: 0; min-width: 0; }
+.bw-toc__link {
+  display: block; min-width: 0;
+  font-size: 14.5px; line-height: 1.4;
+  padding: 9px 10px; border-radius: var(--ds-r-control);
+  /* This rule never declared text-decoration, so the UA default `a { underline }` leaked through
+     and every TOC row rendered underlined (measured: 13 underlined anchors across the 6 pages that
+     carry a .bw-toc). A navigation row is a TARGET, not prose: the tinted pill on :hover/:focus
+     below is the affordance. In-prose links keep their underline deliberately - removing that
+     would be an accessibility regression, not a modernisation. */
+  text-decoration: none;
+  transition: color var(--ds-dur-fast) var(--ds-ease),
+              background-color var(--ds-dur-fast) var(--ds-ease);
+}
+.bw-toc__link:hover { color: var(--ds-accent-deep); background: var(--ds-accent-soft); }
+/* 14.5px/1.4 + 9px padding = a 38px row, measured on the 6 pages that carry a
+   .bw-toc. These are standalone navigation rows, not prose, so WCAG 2.5.8's
+   inline exemption does not apply. 12px padding takes the row to 44px. Coarse
+   pointer only - 38px is comfortable with a cursor and the desktop rail keeps
+   its density. */
+@media (pointer: coarse){
+  .bw-toc__link{padding-block:12px}
+}
+
+/* ============================================================
+   4c. INDEX / BROWSE OBJECTS (.bw-filters / .bw-grid / .bw-linklist)
+   The T-INDEX browse surface. The interactive half is driven by the DS browse
+   engine (00-globals/tokens/browse-engine.js, inlined by build.mjs whenever a
+   page carries [data-grid]), so the control HOOKS below are the engine's own
+   contract names (.search-input · .shop-count · .active-filters · .chip ·
+   a[data-cat] · .is-active) and the bw- classes are only their skin. Nothing
+   here is inert: every control the markup ships is one the engine binds.
+   Object skins only; the section > .container > .row > .col grammar is untouched.
+   ============================================================ */
+
+.search-input { max-width: 17rem; }
+.shop-count { font-size: 13.5px; color: var(--ds-ink-soft); }
+.active-filters { display: flex; flex-wrap: wrap; gap: var(--ds-space-xs); margin-top: var(--ds-space-sm); }
+.active-filters:empty { display: none; }
+.active-filters .chip {
+  display: inline-flex; align-items: center; gap: 7px;
+  min-height: 34px; padding: 6px 13px;
+  border-radius: var(--ds-r-pill);
+  background: var(--ds-accent-soft);
+  border: 1px solid var(--ds-line);
+  font-size: 13.5px; font-weight: 600; color: var(--ds-accent-deep);
+  cursor: pointer;
+}
+/* Owner revision 2026-08-25 (#5 /conditions, #15 /sitemap): the chip rendered TWO close
+   glyphs. The browse engine already emits one INSIDE the chip markup itself -
+   <span class="chip" data-chip=".."> Label <b>&times;</b> </span> - and this rule added a
+   second one via ::after. Removed HERE rather than in the engine: browse-engine.js is a SHARED
+   skill script that build.mjs inlines into every site, so editing it would change other builds.
+   The engine glyph is retained and stays the visible affordance; the whole chip remains the
+   click target, which is what the engine actually binds. */
+
+.bw-filters {
+  display: flex; flex-wrap: wrap; align-items: center; gap: var(--ds-space-sm);
+  padding: var(--ds-space-sm) var(--ds-space-md);
+  border: 1px solid var(--ds-line);
+  border-radius: var(--ds-r-surface);
+  background: var(--ds-bg-surface);
+  box-shadow: var(--ds-shadow-card);
+}
+.bw-filters__label { font-size: 13px; font-weight: 700; color: var(--ds-ink-soft); text-transform: uppercase; letter-spacing: .1em; }
+.bw-filters__count { font-size: 13.5px; color: var(--ds-ink-soft); margin-left: auto; }
+.bw-filter {
+  display: inline-flex; align-items: center; gap: 7px;
+  min-height: 44px; padding: 9px 16px;
+  border-radius: var(--ds-r-pill);
+  border: 1px solid var(--ds-line);
+  background: var(--ds-bg-surface);
+  color: var(--ds-ink);
+  font: inherit; font-size: 14px; font-weight: 600;
+  cursor: pointer;
+  /* THIRD instance of the same defect as .bw-toc__link and the figure margin: this rule styles a
+     pill BUTTON (44px target, border, fill, is-active state) but never declared text-decoration,
+     so the UA default underlined every filter chip. A control is not prose. */
+  text-decoration: none;
+  transition: color var(--ds-dur-fast) var(--ds-ease),
+              background-color var(--ds-dur-fast) var(--ds-ease),
+              border-color var(--ds-dur-fast) var(--ds-ease);
+}
+.bw-filter:hover { border-color: var(--ds-accent); color: var(--ds-accent-deep); }
+.bw-filter.is-active { background: var(--ds-accent-deep); border-color: var(--ds-accent-deep); color: var(--ds-ink-on-dark); }
+
+/* ---- underline policy, stated once so it stops leaking back in ----------------------------
+   Prose links KEEP their underline: it is the only non-colour cue that a run of text is a link,
+   and stripping it is an accessibility regression, not a modernisation. What must NOT be
+   underlined is anything that is a CONTROL or a TITLE rather than a run of prose:
+     - a heading that happens to link (the underline fights the type)
+     - an action row sitting beside a .bw-btn (an underlined phone number next to a solid button
+       reads as two different systems)
+   Each of these rules exists because the element's own rule never declared text-decoration and
+   the user-agent default won by default. */
+:where(main) h1 a, :where(main) h2 a, :where(main) h3 a, :where(main) h4 a { text-decoration: none; }
+:where(main) h1 a:hover, :where(main) h2 a:hover,
+:where(main) h3 a:hover, :where(main) h4 a:hover { color: var(--ds-accent-deep); }
+.tix-rail__acts a, .tix-close-acts a { text-decoration: none; }
+.tix-rail__acts a:hover, .tix-close-acts a:hover { text-decoration: underline; }
+/* a breadcrumb trail is wayfinding, not a sentence */
+.bw-crumbs a { text-decoration: none; }
+.bw-crumbs a:hover { text-decoration: underline; }
+
+.bw-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(248px, 1fr));
+  gap: var(--ds-space-md);
+  list-style: none; margin: 0; padding: 0;
+}
+.bw-grid > li { margin: 0; min-width: 0; }
+.bw-grid [hidden] { display: none; }
+
+/* EQUAL-HEIGHT CARDS IN A GRID ROW.
+   The grid was already stretching its items correctly: measured on testimonials,
+   the <li> heights in a row of three had a spread of 0px. The ragged bottoms came
+   from one level down, the .bw-card INSIDE each <li>, which is a plain block and so
+   only ever took its own content height: spreads of 28px and 57px in the two rows.
+   Making the <li> a flex column and letting the card grow is what ties the card to
+   the cell it was already given.
+
+   :has() keeps this off any <li> that is not wrapping a card, so a future list item
+   with different contents is untouched.
+
+   The attribution line is then pinned to the bottom with margin-top:auto. Without
+   it, equal heights just leave a ragged gap ABOVE the byline instead of below the
+   card, which looks like padding rather than intent; with it, "Roseville, low back
+   pain" lines up across every card in the row.
+
+   Scope check, measured across all 48 pages: .bw-grid on testimonials was the ONLY
+   uneven row on the site. Every span-column card row already stretches correctly,
+   so nothing else needed this. */
+/* ===========================================================================
+   .ak-rail - the twin illustration rails in the conditions band on the home page.
+   Two columns that drift in OPPOSITE directions, the lead column wider than the
+   trail column. On a phone the same rails run horizontally instead of vertically.
+
+   WHAT IS IN THEM, AND WHY IT IS NOT PHOTOGRAPHY. The ask was "images of the
+   services". S6 forbids generating any interior, exterior, room or piece of
+   equipment presented as this practice's, any person, and any named device, so a
+   treatment room or the FX-635 cannot be produced. What S6 DOES permit is flat
+   two-dimensional illustration of general human anatomy, which is exactly the
+   library this band already draws on and exactly what each chip beside it links
+   to. So the rails carry the anatomy set, not invented photographs.
+
+   MOTION IS OPT-IN, NOT OPT-OUT. The accessibility page promises: "If your device
+   is set to reduce motion, the transitions and hover lifts on this site stand
+   still. That setting is honoured, not overridden." An always-on marquee would
+   break that promise, so the animation is declared ONLY inside
+   prefers-reduced-motion: no-preference. Under `reduce` the rails render as two
+   static columns of illustrations, which is a complete state and not a degraded one.
+
+   THE LOOP. Each track holds its image set TWICE and travels exactly -50%, so the
+   second copy lands where the first began and the seam is invisible. The whole
+   rail is aria-hidden: it is decorative (S5 gives decorative imagery empty alt),
+   and a screen reader should not read two dozen anatomy descriptions to narrate a
+   drifting background. The figcaption below it carries the meaning.
+
+   The mask stops use the `black` keyword, not a hex: a mask is an ALPHA stencil,
+   not a brand colour, so there is nothing here for tokens.css to own. G8's
+   brand-hex isolation rule is satisfied in substance, not sidestepped.
+   =========================================================================== */
+.ak-rail {
+  display: grid;
+  grid-template-columns: 1.35fr 1fr;
+  gap: var(--ds-space-sm);
+  height: 700px;
+  overflow: hidden;
+  border-radius: var(--ds-r-surface);
+  /* soften both ends so images enter and leave instead of being guillotined */
+  -webkit-mask-image: linear-gradient(180deg, transparent 0, black 12%, black 88%, transparent 100%);
+  mask-image: linear-gradient(180deg, transparent 0, black 12%, black 88%, transparent 100%);
+}
+/* --- .ak-rail--fit — a 700px rail in a column whose heading starts LOW ------------------------
+   G-MQUAL blocked this band at 700px: the media rendered 156px ABOVE its heading, so the reader
+   met the pictures before the sentence explaining them. The first fix was to shrink the rail to
+   470px, which passed but only by 13px and was not what was wanted.
+
+   Measured geometry at 1440 explains it and gives the better fix. Both columns STRETCH to the row
+   height (925px), and .bw-frame centres its content, so a 700px rail sits at row top + 112 while
+   the heading sits at row top + 203: the eyebrow above the h2 pushes the heading down, and the
+   centred rail starts above it. Bottom-aligning the rail inside its own column instead puts a
+   700px rail at row top + 225, which is 22px BELOW the heading, and the reading order is right.
+
+   Verified at the widths G-MQUAL tests: at 1200 the column is 813 and the heading offset 97, so a
+   bottom-aligned 700 lands 16px below it; at 1024 the column is 827 and the heading offset 136,
+   which 700 cannot clear, so that step down to 560 is a requirement rather than a taste call. */
+.ak-rail--fit { height: 560px; }
+@media (min-width: 1200px) {
+  .ak-rail--fit { height: 700px; }
+}
+/* RAISED TO THE EYEBROW, 2026-08-19, on the owner's call: "make this higher, aligned on the
+   text of 02 The difference, stated plainly". The rail now starts on the same line as the
+   section's eyebrow instead of hanging at the foot of the column.
+
+   The offset is the section header's own lead-in, expressed in the same terms .bw-shead uses
+   (its 1px border-top plus --ds-space-md of padding) rather than as a magic number, so the two
+   stay locked together if that padding is ever retuned. Aligning to the frame's raw top would
+   put the rail level with the HAIRLINE, about 25px above the eyebrow text, which is not what
+   was asked for.
+
+   WHY THIS NO LONGER TRIPS G-MQUAL, which is what forced the bottom-alignment in the first
+   place. The reading-order check was rewritten to test a media's BOTTOM against the heading's
+   TOP, not its top: a media whose vertical range OVERLAPS the heading reads as a side-by-side
+   column and is explicitly exempt, and only a true vertical stack you scroll past before the
+   title is a defect. A 560-700px rail beside a heading that starts within ~80px of the row top
+   clears that by a wide margin. The ORIGINAL note is kept below because its GEOMETRY is still
+   the reference for why the 1024 step-down to 560 exists.
+
+   ORIGINAL NOTE: "G-MQUAL blocked this band at 700px: the media rendered 156px ABOVE its
+   heading... Bottom-aligning the rail inside its own column instead puts a 700px rail at row
+   top + 225, which is 22px BELOW the heading, and the reading order is right." */
+.bw-frame:has(> .ak-rail--fit) {
+  align-items: start;
+  padding-top: calc(1px + var(--ds-space-md));
+}
+
+/* --- side-by-side: the rail runs the FULL height of the prose beside it ----------------------
+   Owner: "make the rail height aligned on the Inside the assessment link so there will be less
+   white space". A fixed 560/700px rail beside a taller prose column always leaves a dead band
+   under the pictures; matching the column removes it by construction at every width.
+
+   OUT OF FLOW, and that is the load-bearing part. The obvious version — height:100% or
+   align-items:stretch — is circular here. The columns are flex items that stretch to the line's
+   cross size, and that cross size is the MAX of the columns' own content heights. The rail's
+   content is two marquee tracks carrying every image at full size, so letting the rail size
+   itself would make the RAIL set the row height (thousands of px) instead of following the
+   prose, and a percentage height would fall back to that same intrinsic height. Absolute
+   positioning takes the rail out of the flow entirely: the media column then contributes
+   nothing, the row height is purely the prose column, and top/bottom pin the rail to it.
+
+   top is the section header's lead-in, the same expression the block above uses, so the rail
+   still starts level with the eyebrow. bottom:0 lands it on the foot of the prose column, which
+   is the "Inside the assessment" link. Note the containing block for an absolutely positioned
+   child is the PADDING box, so the frame's own padding-top is cleared here and the offset is
+   stated once, on the rail. */
+@media (min-width: 901px) {
+  .bw-frame:has(> .ak-rail--fit) { position: relative; padding-top: 0; }
+  .ak-rail--fit {
+    position: absolute;
+    top: calc(1px + var(--ds-space-md));
+    left: 0; right: 0; bottom: 0;
+    height: auto;
+  }
+}
+
+/* ===========================================================================
+   .ak-wordcross — the hero plate, as two crossing rails of WORDS.
+   Replaced the practitioner photograph that sat here. Two tracks run at opposite
+   angles and in opposite directions so they scissor through each other; the words
+   are the practice's own service names, taken verbatim from the services band and
+   the nav rather than invented for the graphic.
+
+   DECORATIVE, and that classification is load-bearing in two places. Every one of
+   these names is already a real link in the nav and in the services section, so a
+   screen reader gains nothing from hearing them a third time drifting past: the
+   whole block is aria-hidden. That is also what keeps it clear of the
+   no-text-overlap gate, which excludes aria-hidden and role=presentation text by
+   design (its own header lists "decorative watermark" as an intended exclusion).
+   Two rails that cross MUST overlap where they cross; marking the block decorative
+   is the honest description of what it is, not a way around the check.
+
+   MOTION IS OPT-IN. Same contract as .ak-rail: the animation is declared only
+   under prefers-reduced-motion: no-preference, so the accessibility page's promise
+   that motion "stands still" holds. Under reduce this renders as two static
+   crossed bands of service names, which still reads as a finished graphic.
+   =========================================================================== */
+/* .ak-vidfig / .ak-loopvid — a motif slot holding a looping video instead of a drawn
+   diagram. Fills its column: the first pass capped it at 340px and it read as a stamp
+   rather than as the section's image. aspect-ratio holds the box before the file
+   arrives, so the poster and the video occupy the same space and nothing reflows.
+   The source is 512 square against a column that runs to about 430px, so it is still
+   downsampling on a 1x screen rather than being stretched. */
+.ak-vidfig { margin: 0; width: 100%; }
+.ak-loopvid {
+  display: block;
+  width: 100%;
+  height: auto;
+  aspect-ratio: 1 / 1;
+  object-fit: cover;
+  border-radius: var(--ds-r-surface);
+  background: var(--ds-bg-warm);
+}
+
+.ak-wordcross {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+
+  /* --ak-p IS THE LATTICE PITCH, AND IT DRIVES BOTH AXES. That single fact is the whole
+     fix. Both axes used to be placed at 18% / 50% / 82%, which sounds even and is not:
+     the plate is 400 wide by 696 tall, so the same percentages put the rows 222px apart
+     and the columns 128px apart. The cells came out at 128x222 and the field read as a
+     stretched grid rather than as a board. One shared pitch makes the cells SQUARE.
+
+     The value is clamped on BOTH axes on purpose. 32cqw alone is right while the plate is
+     tall and narrow, but at 601-900 and on a phone the plate gets wide and short, and a
+     width-derived pitch then throws the outer rows clean off the top and bottom edges.
+     20cqh is the guard for that case; min() takes whichever axis is the binding one.
+
+     The 128px fallback is the resolved desktop value (32% of a 400px plate), so a browser
+     without container query units gets exactly today's desktop lattice and the media
+     queries below carry the other two bands. */
+  --ak-p: 128px;
+  /* NO background: the words drift over the card's own surface. This block used to paint
+     --ds-bg-warm and sit inside a bordered plate; both are gone so nothing frames it. */
+  /* The fade used to start at 38% of the radius, which killed the verticals well short
+     of the top and bottom edges and stopped the horizontals long before the right one.
+     Holding full opacity to 80% and only feathering the last stretch lets both axes run
+     to the boundary of the plate, which is what "max out the parent" asks for, while
+     still avoiding a hard guillotine on a half-drawn word. */
+  -webkit-mask-image: radial-gradient(155% 155% at 50% 50%, black 80%, transparent 100%);
+  mask-image: radial-gradient(155% 155% at 50% 50%, black 80%, transparent 100%);
+}
+
+/* PX FALLBACK LADDER — for browsers WITHOUT container query units, and for nothing else.
+   It has to sit ABOVE the @supports block: both carry the same specificity, so whichever
+   is declared last wins, and the container query value must be the one that wins wherever
+   it is understood. The numbers are simply the resolved min(32cqw, 20cqh) at each band's
+   plate size: 400x696 gives 128 (the base declared above), 340x460 gives 92. */
+@media (max-width: 900px) { .ak-wordcross { --ak-p: 92px; } }
+
+/* Container query units where the browser has them. Kept behind @supports rather than
+   declared straight onto .ak-wordcross so the px ladder further down stays the answer on a
+   browser that cannot resolve cqw/cqh: an unsupported unit sitting inside a custom property
+   makes every calc() that consumes it invalid at computed-value time, and eight rails would
+   collapse into the top-left corner rather than degrade. */
+@supports (height: 1cqh) {
+  .ak-wordcross { --ak-p: min(32cqw, 20cqh); }
+}
+
+/* EIGHT rails on ONE shared pitch: five horizontal, three vertical. Five rows and not
+   three because the pitch is now square — a 696px plate takes five 128px steps to fill,
+   and three would have stranded a third of the plate empty at the top and another third
+   at the bottom. Every rail still runs at its own speed and its own direction, so the
+   field never settles into a pattern the eye can lock onto.
+
+   Both families are placed from the CENTRE outwards, 50% +/- n * pitch, rather than from
+   an edge: that is what makes the outer margins equal on both sides at every plate size.
+
+   Each rail is then pulled back by half its own thickness. `top` and `left` position a
+   rail's LEADING EDGE, but the line a reader sees is its middle, so without the translate
+   the columns sat 86px from the left edge and 58px from the right — off-centre by exactly
+   half a rail. The translate is on the RAIL; the marquee animation is on the TRACK inside
+   it, so the two transforms are on different elements and never overwrite each other. */
+.ak-wordcross__rail {
+  position: absolute;
+  display: flex;
+  overflow: hidden;
+}
+/* Rails are exactly the size of the plate. They used to overhang it by 60% either way
+   (left:-30%; width:160%), which bought nothing — the rail already clips its own content
+   and the plate clips it again — while inflating the track length each rail needed in
+   order to stay full by the same 60%. */
+.ak-wordcross__rail--h { left: 0; width: 100%; transform: translateY(-50%); }
+.ak-wordcross__rail--h1 { top: calc(50% - 2 * var(--ak-p)); }
+.ak-wordcross__rail--h2 { top: calc(50% - 1 * var(--ak-p)); }
+.ak-wordcross__rail--h3 { top: 50%; }
+.ak-wordcross__rail--h4 { top: calc(50% + 1 * var(--ak-p)); }
+.ak-wordcross__rail--h5 { top: calc(50% + 2 * var(--ak-p)); }
+
+/* writing-mode turns the flex main axis vertical AND rotates the glyphs, so one markup
+   shape serves both orientations; the vertical rails need no separate track structure. */
+.ak-wordcross__rail--v { top: 0; height: 100%; writing-mode: vertical-rl; transform: translateX(-50%); }
+.ak-wordcross__rail--v1 { left: calc(50% - 1 * var(--ak-p)); }
+.ak-wordcross__rail--v2 { left: 50%; }
+.ak-wordcross__rail--v3 { left: calc(50% + 1 * var(--ak-p)); }
+
+.ak-wordcross__track {
+  display: flex;
+  flex: none;
+  gap: var(--ds-space-md);
+  white-space: nowrap;
+  align-items: center;
+}
+.ak-wordcross__track span {
+  font-family: var(--ds-font-display);
+  font-size: clamp(12px, 1.5vw, 15px);
+  line-height: 1.1;
+  color: var(--ds-ink-heading);
+}
+/* the two axes are separated by weight so the crosshatch has a foreground and a
+   background instead of four equally loud lines fighting each other. */
+.ak-wordcross__rail--h span { color: var(--ds-accent-ink); opacity: .6; }
+.ak-wordcross__rail--v span { color: var(--ds-ink-heading); opacity: .26; }
+
+.ak-wordcross__track span::after {
+  content: "";
+  display: inline-block;
+  width: 4px; height: 4px;
+  margin-left: var(--ds-space-md);
+  border-radius: 50%;
+  background: currentColor;
+  opacity: .45;
+  vertical-align: middle;
+}
+
+/* EIGHT periods. What matters to the eye is not the period, it is PIXELS PER SECOND, and
+   the two are only the same thing when the tracks are the same length. These eight are not:
+   a row of three service phrases is roughly 450 to 520px per set while a column of five
+   joint names is 300 to 420px, so identical periods would have made the columns visibly
+   crawl next to the rows. Each period below is therefore chosen to land its rail in a
+   narrow band, which is the owner's "different speed, but not so different" read: measured
+   across 1440 down to 375 every rail sits between 12.2 and 16.7 px/s, a 1.37x spread.
+   h4 is 31s and not 36s for exactly this reason — 36 measured 10.6 px/s on a phone, where
+   the smaller type shortens the track, and it visibly lagged the other four rows. Re-run
+   _tmp-railspeed.mjs after any period change; it fails the band, it does not just print it.
+   No two rails share a period and none is an integer multiple of another, so the field
+   never re-synchronises. */
+@media (prefers-reduced-motion: no-preference) {
+  .ak-wordcross__rail--v3 .ak-wordcross__track { animation: ak-word-up    20s linear infinite; }
+  .ak-wordcross__rail--v1 .ak-wordcross__track { animation: ak-word-up    24s linear infinite; }
+  .ak-wordcross__rail--v2 .ak-wordcross__track { animation: ak-word-down  26s linear infinite; }
+  .ak-wordcross__rail--h1 .ak-wordcross__track { animation: ak-word-left  28s linear infinite; }
+  .ak-wordcross__rail--h5 .ak-wordcross__track { animation: ak-word-left  30s linear infinite; }
+  .ak-wordcross__rail--h2 .ak-wordcross__track { animation: ak-word-right 32s linear infinite; }
+  .ak-wordcross__rail--h3 .ak-wordcross__track { animation: ak-word-left  34s linear infinite; }
+  .ak-wordcross__rail--h4 .ak-wordcross__track { animation: ak-word-right 31s linear infinite; }
+}
+/* -25%, not -50%: each track now carries FOUR copies of its word set, so one copy's worth
+   of travel is a quarter of the track. Change the copy count in the markup and this number
+   has to change with it (travel = 100/copies), or the loop will visibly jump. */
+@keyframes ak-word-left  { from { transform: translateX(0); }    to { transform: translateX(-25%); } }
+@keyframes ak-word-right { from { transform: translateX(-25%); } to { transform: translateX(0); } }
+@keyframes ak-word-up    { from { transform: translateY(0); }    to { transform: translateY(-25%); } }
+@keyframes ak-word-down  { from { transform: translateY(-25%); } to { transform: translateY(0); } }
+
+@media (max-width: 600px) {
+  .ak-wordcross__track span { font-size: 11px; }
+  /* The vertical rails are BACK on the phone, and the per-rail top/left overrides that used
+     to live here are gone. Both were answers to a plate that no longer exists: the note
+     said "a short 104px band", which was true when this block was written, but the plate
+     carries min-height:420px since 08-19 and min-height beats the height:104px declared for
+     it in this same breakpoint. Measured at 375 the plate is 279x420, which at an 84px
+     pitch takes three columns at 55/139/223 and five rows at 42 through 378 — a real board,
+     not three cramped glyphs. Positions come from --ak-p like every other size now; hard
+     percentages here would put the phone back on a different lattice from the desktop. */
+}
+
+.ak-rail__col { overflow: hidden; min-width: 0; }
+.ak-rail__track {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ds-space-sm);
+}
+.ak-rail__track img {
+  display: block;
+  width: 100%;
+  height: auto;
+  aspect-ratio: 1 / 1;
+  object-fit: cover;
+  border-radius: var(--ds-r-control);
+  border: 1px solid var(--ds-line);
+  background: var(--ds-bg-warm);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .ak-rail__track      { animation: ak-rail-up 42s linear infinite; }
+  .ak-rail__track--rev { animation: ak-rail-down 52s linear infinite; }
+}
+/* -33.333%, not -50%: each track now carries THREE copies of its six images, so one copy's
+   worth of travel is a third of the track. The travel DISTANCE in px is unchanged (a third of a
+   3-copy track equals half of the old 2-copy one), so every rail moves at exactly the speed it
+   did before and the 42s/52s pair is untouched.
+
+   What changed is the coverage margin. A marquee of N copies is gap-free only while
+   track x (N-1)/N >= rail, which at two copies demanded a track twice the rail height. Once the
+   rail started following the prose column instead of sitting at a fixed 700px it grew to 868px
+   at 901, and the TRAIL track — the narrower 1fr column, whose images are smaller and whose
+   track is therefore shorter — came up 2.0px SHORT of that. Three copies drop the requirement
+   from 2x to 1.5x the rail and leave about 1300px of margin at the tightest width. If you change
+   the copy count, this percentage is 100/copies. */
+@keyframes ak-rail-up   { from { transform: translateY(0); }        to { transform: translateY(-33.333%); } }
+@keyframes ak-rail-down { from { transform: translateY(-33.333%); } to { transform: translateY(0); } }
+
+/* PHONE: the same two rails, turned on their side and travelling left/right. */
+@media (max-width: 700px) {
+  .ak-rail {
+    grid-template-columns: none;
+    grid-template-rows: 1.3fr 1fr;
+    height: 300px;
+    -webkit-mask-image: linear-gradient(90deg, transparent 0, black 8%, black 92%, transparent 100%);
+    mask-image: linear-gradient(90deg, transparent 0, black 8%, black 92%, transparent 100%);
+  }
+  /* width:max-content is what makes the PHONE rail a marquee at all. Turned on its side the
+     track is still a block-level flex box inside .ak-rail__col, so it took the column's width
+     and squeezed all its images into it: measured on the LIVE site the track was 327px wide in
+     a 327px rail — exactly one screenful, with nothing to scroll and every image crushed. Sizing
+     it to its content lets it overflow the column (which clips) the way the vertical rails do.
+     This defect predates the height work; it was found while verifying it. */
+  .ak-rail__track { flex-direction: row; height: 100%; width: max-content; }
+  .ak-rail__track img { width: auto; height: 100%; }
+}
+@media (max-width: 700px) and (prefers-reduced-motion: no-preference) {
+  .ak-rail__track      { animation-name: ak-rail-left; }
+  .ak-rail__track--rev { animation-name: ak-rail-right; }
+}
+@keyframes ak-rail-left  { from { transform: translateX(0); }        to { transform: translateX(-33.333%); } }
+@keyframes ak-rail-right { from { transform: translateX(-33.333%); } to { transform: translateX(0); } }
+
+/* CARD ROWS: PIN THE TRAILING LINK TO THE BOTTOM.
+   The grid was already giving every card in a row the same height. What read as ragged was the
+   INSIDE of the card: the link sits immediately after its paragraph, so on a card with two lines
+   of copy the link floats halfway up while its neighbour's sits near the base.
+
+   The ask was `justify-content: space-between`. That does put the last child on the floor, but it
+   also distributes the slack into EVERY gap, so on the short cards ("Cold laser therapy", "PEMF
+   therapy") the icon drifts away from the heading and the heading away from its text. Pinning only
+   the last child with margin-top:auto puts the links on one line and leaves the top of every card
+   tight, which is the "balanced in the eyes of human" part of the ask. Same technique already used
+   on the testimonial grid, so the two card systems behave alike. */
+.bw-spine .bw-card {
+  display: flex;
+  flex-direction: column;
+}
+.bw-spine .bw-card > p:last-child { margin-top: auto; }
+/* the trailing link keeps its own breathing room from the copy above it even when pinned */
+.bw-spine .bw-card > p:last-child:not(:first-child) { padding-top: var(--ds-space-sm); }
+
+.bw-grid > li:has(> .bw-card, > .bw-glass) { display: flex; }
+.bw-grid > li > .bw-card,
+.bw-grid > li > .bw-glass {
+  flex: 1 1 auto;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+.bw-grid > li > .bw-card > .bw-small:last-child,
+.bw-grid > li > .bw-glass > .bw-small:last-child { margin-top: auto; }
+
+/* --- MOBILE SLIDER -----------------------------------------------------------------------------
+   A stack of six full-width testimonial cards is a long scroll on a phone. --slide turns the SAME
+   grid into a swipeable rail below 760px and leaves the desktop grid exactly as it was.
+   Deliberately built with native overflow scrolling and scroll-snap, NOT a JS carousel:
+     - the browse-engine filtering is untouched, because hiding an item with [hidden]{display:none}
+       removes it from the rail exactly as it removed it from the grid;
+     - there is no autoplay and no animation, so it cannot violate the reduced-motion promise the
+       accessibility page makes — the user drives every movement;
+     - it stays keyboard- and screen-reader-reachable because it is still a <ul> of <li>.
+   grid-auto-columns is 84% so the NEXT card always peeks: that peek is the affordance telling the
+   reader there is more sideways, without adding arrows that would need JS. */
+/* six testimonials against the base .bw-grid (minmax 248px) landed 4 + 2 at the 1160 container.
+   A wider floor gives a clean 3 + 3 and a more readable measure for a quote. Scoped to --slide, so
+   the conditions index (20 items on the same .bw-grid) keeps its denser 4-up. */
+@media (min-width: 761px) {
+  .bw-grid--slide { grid-template-columns: repeat(auto-fit, minmax(min(100%, 20rem), 1fr)); }
+}
+/* --- .is-rail — THE SHARED MOBILE RAIL --------------------------------------------------------
+   The measured problem, at 375x812 across all 48 pages: a section made of N stacked cards costs N
+   screens of thumb travel and there is no way to tell from inside it how much is left. Worst
+   offenders were index "What the assessment can call on" (7 cards, 3.64 screens), forms "What you
+   will be asked for" (8, 2.45), patient-info "Before you book" (5, 2.17) and about "Where to go
+   next" (4, 1.90).
+
+   .is-rail turns ANY repeated-object container into a swipeable rail below 760px and is inert at
+   every larger width, so no desktop layout moves. It generalises what --slide already proved on the
+   testimonials grid.
+
+   WHY THIS AND NOT A CAROUSEL. Every item stays in the DOM and in source order: nothing is hidden
+   from a crawler, nothing leaves the tab order, the [hidden] filtering still works, and there is no
+   autoplay and no scripted movement — so it cannot break the reduced-motion promise the
+   accessibility page makes. The reader drives every pixel.
+
+   THE AFFORDANCE is the 84% column: the next card always peeks past the viewport edge, which is
+   what tells a thumb there is more sideways. The negative margin bleeds the scroll port to the true
+   viewport edge so that peek is not clipped inside the container gutter, and the slim styled track
+   underneath doubles as the position indicator. No arrows, because arrows would need JS.
+
+   ONLY where the items are PEER and BROWSABLE. A rail is wrong for an index whose job is "find the
+   one that is mine" — see .bw-grid--dense and .tix-index below, which stay fully visible instead. */
+.is-rail { min-width: 0; }
+
+@media (max-width: 760px) {
+  .is-rail {
+    display: grid;
+    grid-auto-flow: column;
+    grid-template-columns: none;
+    grid-auto-columns: 84%;
+    gap: var(--ds-space-md);
+    align-items: stretch;
+    overflow-x: auto;
+    overscroll-behavior-x: contain;
+    scroll-snap-type: x mandatory;
+    scroll-padding-inline: var(--ds-space-md);
+    margin-inline: calc(var(--ds-space-md) * -1);
+    padding-inline: var(--ds-space-md);
+    padding-bottom: var(--ds-space-sm);
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: thin;
+    scrollbar-color: var(--ds-accent) transparent;
+  }
+  /* the track IS the progress indicator — the only reason it is styled rather than hidden */
+  .is-rail::-webkit-scrollbar { height: 4px; }
+  .is-rail::-webkit-scrollbar-track { background: var(--ds-line); border-radius: var(--ds-r-pill); }
+  .is-rail::-webkit-scrollbar-thumb { background: var(--ds-accent); border-radius: var(--ds-r-pill); }
+
+  /* children arrive as .col (flex-sized), <li>, or a bare card — all must stop computing their own
+     width once the rail owns the track sizing */
+  .is-rail > * {
+    scroll-snap-align: center;
+    flex: initial; width: auto; max-width: none; min-width: 0;
+    margin: 0;
+  }
+  .is-rail > .bw-card,
+  .is-rail > * > .bw-card,
+  .is-rail > * > .bw-tile,
+  .is-rail > * > .bw-fstep { height: 100%; }
+}
+
+@media (max-width: 760px) {
+  .bw-grid--slide {
+    grid-auto-flow: column;
+    grid-template-columns: none;
+    grid-auto-columns: 84%;
+    overflow-x: auto;
+    overscroll-behavior-x: contain;
+    scroll-snap-type: x mandatory;
+    scroll-padding-inline: var(--ds-space-md);
+    margin-inline: calc(var(--ds-space-md) * -1);
+    padding-inline: var(--ds-space-md);
+    padding-bottom: var(--ds-space-sm);
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: thin;
+    scrollbar-color: var(--ds-accent) transparent;
+  }
+  .bw-grid--slide::-webkit-scrollbar { height: 4px; }
+  .bw-grid--slide::-webkit-scrollbar-track { background: var(--ds-line); border-radius: var(--ds-r-pill); }
+  .bw-grid--slide::-webkit-scrollbar-thumb { background: var(--ds-accent); border-radius: var(--ds-r-pill); }
+  .bw-grid--slide > li { scroll-snap-align: center; }
+  .bw-grid--slide > li > .bw-card { height: 100%; }
+}
+
+/* --- INDEXES STAY WHOLE, THEY JUST GET DENSER -------------------------------------------------
+   sitemap's "All 48 pages" measured 6579px — 8.1 screens, the worst section on the site — and the
+   conditions index 4494px / 5.5 screens. Neither may become a rail: both exist so a reader can find
+   the ONE row that is theirs, and a rail would put 46 of 48 behind a swipe. So they keep every item
+   on screen and lose the bulk instead. */
+@media (max-width: 760px) {
+  /* the sitemap tile's <span> is the URL path — wayfinding on desktop, noise on a phone, and the
+     single biggest contributor to that 8.1 screens. It stays in the DOM. */
+  .bw-grid--dense { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--ds-space-sm); }
+  .bw-grid--dense .bw-tile { padding: var(--ds-space-sm); }
+  .bw-grid--dense .bw-tile b { font-size: 15px; margin-bottom: 0; }
+  .bw-grid--dense .bw-tile span { display: none; }
+
+  /* the condition blurb is what tells a reader whether the row is theirs, so it is clamped, not
+     dropped */
+  .tix-index .tix-row span {
+    display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+}
+
+.bw-tile {
+  display: block; height: 100%;
+  padding: var(--ds-space-md);
+  background: var(--ds-bg-surface);
+  border: 1px solid var(--ds-line);
+  border-radius: var(--ds-r-surface);
+  box-shadow: var(--ds-shadow-card);
+  color: var(--ds-ink);
+  text-decoration: none;
+  transition: transform var(--ds-dur) var(--ds-ease),
+              box-shadow var(--ds-dur) var(--ds-ease),
+              border-color var(--ds-dur) var(--ds-ease);
+}
+.bw-tile:hover { transform: translateY(-3px); box-shadow: var(--ds-shadow-lift); border-color: var(--ds-accent); }
+.bw-tile b { display: block; font-family: var(--ds-font-display); font-size: 19px; line-height: 1.24; color: var(--ds-ink-heading); margin-bottom: 6px; }
+.bw-tile span { display: block; font-size: 14.5px; color: var(--ds-ink-soft); }
+
+.bw-linklist { list-style: none; margin: 0 0 var(--ds-space-md); padding: 0; }
+.bw-linklist li { margin: 0; border-bottom: 1px solid var(--ds-line); }
+.bw-linklist li:last-child { border-bottom: 0; }
+.bw-linklist a { display: block; min-height: 44px; padding: 11px 2px; font-weight: 600; text-decoration: none; }
+.bw-linklist a:hover { text-decoration: underline; }
+.bw-linklist span { display: block; font-size: 14px; font-weight: 400; color: var(--ds-ink-soft); }
+
+/* The shared applied-globals DEPTH signal, available as an explicit object skin.
+   .bw-card and .bw-btn already implement this exact micro-interaction; .bw-lift is the
+   same rise made explicit for tiles and controls that are not those two objects.
+   Motion-safe: the rise is suppressed under prefers-reduced-motion. */
+.bw-lift {
+  transition: transform var(--ds-dur) var(--ds-ease),
+              box-shadow var(--ds-dur) var(--ds-ease);
+}
+.bw-lift:hover { transform: translateY(-3px); box-shadow: var(--ds-shadow-lift); }
+@media (prefers-reduced-motion: reduce) { .bw-lift:hover { transform: none; } }
+
+/* ============================================================
+   5. UTILITIES + accessibility
+   ============================================================ */
+
+.kit-visually-hidden {
+  position: absolute; width: 1px; height: 1px;
+  padding: 0; margin: -1px; overflow: hidden;
+  clip-path: inset(50%); white-space: nowrap; border: 0;
+}
+/* CLIP-hidden, not pushed to left:-9999px (owner mobile pass 2026-08-21). The old
+   off-screen-left parking was the ONLY horizontal-overflow source measured anywhere on the
+   site: /sitemap at 320px reported the document 15px wider than the viewport. A 187px box
+   parked at -9999px still participates in the scrollable overflow region, and on the one
+   page narrow enough for the layout to stop absorbing it, it surfaced as a real sideways
+   scroll. The width/height:1px + clip-path pattern removes the box from the overflow
+   calculation entirely while keeping the link in the a11y tree and focusable. */
+.kit-skip-link {
+  position: absolute; left: 0; top: 0;
+  width: 1px; height: 1px; overflow: hidden;
+  clip-path: inset(50%); white-space: nowrap;
+  z-index: var(--ds-z-toast);
+  padding: 12px 18px;
+  background: var(--ds-accent-deep); color: var(--ds-ink-on-dark);
+  border-radius: var(--ds-r-control);
+}
+.kit-skip-link:focus {
+  width: auto; height: auto; overflow: visible; clip-path: none;
+  left: var(--ds-space-md); top: var(--ds-space-md);
+}
+
+:where(a, button, input, select, textarea, summary):focus-visible {
+  outline: 3px solid var(--ds-accent-deep);
+  outline-offset: 2px;
+}
+
+/* ============================================================
+   6. RESPONSIVE — the grammar reflows; the skins do not change
+   ============================================================ */
+
+@media (max-width: 900px) {
+  .col--span-3, .col--span-4, .col--span-5,
+  .col--span-6, .col--span-7, .col--span-8 { flex: 0 0 100%; }
+  .row--loose { gap: var(--ds-space-lg); }
+  /* held at the desktop cap for the same reason: 320px would paint a 300px image from a 259px
+     source (1.16x). Raise both together once a larger portrait is supplied. */
+  .bw-portrait { margin-inline: auto; max-width: 290px; }
+}
+
+/* Owner revision 2026-08-25 — trailing rhythm where a card RAIL ends the section.
+   Under 760px .row--cards becomes .is-rail, which carries padding-bottom: var(--ds-space-sm)
+   (14px) so its scroll-progress track has room. verify-section-rhythm measures to the last
+   LAYOUT OBJECT — the card — so trailing read 14 + 48 = 62px against a 48px leading and the
+   gate blocked /about and /patient-info.
+   This asymmetry is NOT new. Until this revision a .bw-mark motif sat below the rail as the
+   section's last object, exactly at the section padding, so the gate measured 48 and never saw
+   it. Removing the motif (owner request #8/#9/#11) exposed the real geometry rather than
+   creating it — confirmed by rebuilding /about with the motif restored, which passes 48/48.
+   The rail's own track padding now counts toward the section's trailing space, so the section
+   subtracts it: card -> 14px track -> 34px padding = 48px, matching the leading exactly, and
+   the scrollbar keeps its room. Scoped to the widths where .is-rail actually exists. */
+@media (max-width: 760px) {
+  section:has(.row--cards.is-rail:last-child) {
+    padding-bottom: calc(var(--ds-section-py) - var(--ds-space-sm));
+  }
+}
+
+@media (max-width: 600px) {
+  section:has(.row--cards.is-rail:last-child) {
+    padding-bottom: calc(var(--ds-section-py-sm) - var(--ds-space-sm));
+  }
+}
+
+@media (max-width: 600px) {
+  body { font-size: 16px; }
+  /* -25% owner polish 2026-08-21: was var(--ds-space-xl) (64px) -> --ds-section-py-sm (48px).
+     Paired with the .bw-seam--band pull below, which MUST resolve to the same value. */
+  section { padding: var(--ds-section-py-sm) 0; }
+  .bw-btn { width: 100%; justify-content: center; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: .001ms !important;
+    transition-duration: .001ms !important;
+    animation-iteration-count: 1 !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* ============================================================================
+   5. TEMPLATE-TOURNAMENT WINNERS — promoted object skins (OBS-29 migration)
+   ----------------------------------------------------------------------------
+   The 8 owner-picked per-TYPE concepts each carried their object skins in an
+   INLINE <style> in their tournament preview. promote-concept.mjs extracts only
+   <main>, so those skins were left behind and every promoted page assembled
+   UNSTYLED (verify-no-orphan-classes / G-ORPHAN, OBS-29). They are migrated here,
+   into the LINKED structural sheet, verbatim except for the reconciliations noted.
+
+   PICKS: T-ARTICLE concept-a · T-FEATURE concept-a · T-HUB concept-b ·
+          T-INDEX concept-b · T-PERSONA concept-c · T-COMPANY concept-a ·
+          T-CONTACT concept-b · T-LEGAL concept-c
+
+   TOKEN-PURE BY CONTRACT: zero hex literals below; every colour resolves through a
+   var(--ds-*) from applied-kinesiology-sacramento-tokens.css, so every object still
+   inverts inside .surface-dark. Layout numbers (px/%) are structure, not brand.
+   SKINS ON OBJECTS ONLY — nothing below re-points section / .container / .row / .col
+   geometry, and nothing below hardcodes a container width (the cap stays
+   var(--ds-container-max)).
+   ============================================================================ */
+
+/* ---- SEAM SYSTEM (migrated + reconciled from T-ARTICLE/T-FEATURE/T-HUB/T-COMPANY/T-CONTACT).
+   The 5 winners each shipped their own `.bw-seam path { fill: … }`, which collide once they
+   share one sheet. Reconciled to ONE base rule + colour modifiers: the path inherits
+   currentColor, each seam declares the ground it is biting INTO. Token-pure. ---- */
+.bw-seam path { fill: currentColor; }
+.bw-seam { color: var(--ds-bg-surface); }
+.bw-seam--deep, .bw-seam--to-dark { color: var(--ds-primary-deep); }
+.bw-seam--to-warm { color: var(--ds-bg-warm); }
+/* An EXIT seam continues the dark band's BOTTOM edge, and that edge is the gradient's END
+   (#263440), not --ds-primary-deep (#1E2A33). Painting the start colour drew a hard horizontal
+   band across the join — reported by the owner on /applied-kinesiology 2026-08-25 and confirmed
+   by reading the live computed background: linear-gradient(rgb(30,42,51), rgb(38,52,64)) against
+   a seam fill of rgb(30,42,51). Scoped to --flush-top because that is precisely the exit case:
+   a seam pinned to the top of the section BELOW a dark band. The entry seam (--flush, pinned to
+   a dark band's top) keeps --ds-primary-deep, which correctly matches the gradient's start. */
+.bw-seam--flush-top.bw-seam--deep { color: var(--ds-primary-deep-2); }
+/* A DEFAULT seam (no --to-* / --deep modifier) hands onto the LIGHT band below it, so it must paint
+   paper. `--ds-bg-surface` above expresses that correctly on a light ground and WRONGLY inside a
+   dark one, where .surface-dark re-points it to #1E2A33: the arc then paints dark-on-dark, vanishes,
+   and the light section below begins on a hard flat edge. Found 2026-08-17 on dr-van-wagenen by
+   sampling the pixels actually painted (fill #1e2a33 against a band of #fffdfa, delta 225); the
+   `.bw-seam--flush-top` comment further down already documents this failure mode.
+   `--ds-bg-paper` is the surface-INVARIANT paper token, so this holds on either ground.
+
+   BOTH QUALIFIERS ARE LOAD-BEARING, do not simplify either away:
+   - `.bw-seam--band` (not `.bw-seam`): only the in-flow BOTTOM seam hands onto the next section.
+     A first version targeted any `.bw-seam` and flipped who-its-for's `.ak-c-seam` from a correct
+     #1e2a33 to #fffdfa — that one is absolutely positioned at the TOP of its dark band, an ENTRY
+     seam, so it should stay dark. Caught by pixel-diffing fill against the band below.
+   - `:has(+ section:not(.surface-dark))`: "inside a dark band" does not by itself mean paper. It
+     depends on the band handed ONTO. A dark band followed by another dark band keeps a dark seam.
+   If a browser lacks :has() the rule simply never applies, which degrades to today's behaviour
+   rather than to a new wrong colour. */
+section.surface-dark:has(+ section:not(.surface-dark):not(.section--dark))
+  .bw-seam--band:not(.bw-seam--deep):not(.bw-seam--to-dark):not(.bw-seam--to-warm):not(.bw-seam--flip) {
+  color: var(--ds-bg-paper);
+}
+.bw-seam--band  { margin-top: var(--ds-space-xl); margin-bottom: calc(var(--ds-section-py) * -1); }
+/* PINNED, not pulled. The old mechanism was `margin-bottom: calc(var(--ds-section-py) * -1)` — a
+   -88px pull meant to cancel the owning section's 88px bottom padding. That is arithmetically
+   unsafe: a negative bottom margin can only collapse a box as far as its own height, and with
+   .bw-seam--fluid the seam is clamp(40px,5vw,78px) = 72px at 1440, so 16px of the pull was silently
+   discarded and a band of the page ground stayed stranded under the arc (measured 88px on services
+   before this, 17px with the pull alone). Pinning to the section's bottom edge is exact at every
+   width — the section is position:relative, so this needs no other change. */
+.bw-seam--flush {
+  position: absolute; left: 0; right: 0;
+  /* Owner revision 2026-08-25 (#3 /applied-kinesiology, #6 /contact, #10 /services).
+     The seam is absolutely positioned over the section bottom padding, so CLEAR SPACE between
+     the last content and the curve = section padding MINUS seam height. At bottom:-1px with a
+     78px seam that was 66 - 78 = -12px at desktop: the curve OVERLAPPED the last content by
+     12px, which is what the owner marked on all three pages. Shrinking the seam far enough to
+     fix it would flatten the curve to ~38:1 across 1440px.
+     Instead the seam BLEEDS below the section boundary by ~38% of its own height, so it keeps
+     its proportions and hands the clear space back: at 1440 the box top sits 40px above the
+     section end, leaving ~26px clear. The bleed lands inside the NEXT section top padding
+     (66px), so nothing below is covered. */
+  bottom: calc(-0.38 * clamp(20px, 5.42vw, 64px));
+  width: 100%; margin: 0;
+}
+
+/* Owner revision 2026-08-25 (#2 section break on mobile, #4 /applied-kinesiology,
+   #7 /contact): the seam is viewBox="0 0 1440 78" with preserveAspectRatio="none", so a
+   FIXED 78px box squashed the 1440-unit curve into 440px on a phone - the identical curve
+   rendered about 3.3x steeper than on a desktop, which is what read as a lopsided hump.
+   Height now tracks width at the viewBox's own ratio (78/1440 = 5.42vw), so the slope is
+   the same at every viewport, with a 36px floor so it never disappears.
+   SCOPED to the flush variants deliberately: they are position:absolute and so cannot
+   affect section rhythm, whereas the in-flow --band seams need their full 78px for the
+   negative-margin arithmetic documented above. Every seam reported by the owner
+   (/applied-kinesiology x2, /contact, /services) is a flush variant.
+   FLOOR 36px -> 20px (owner revision #3/#6/#10, same pass): 5.42vw is 20.3px at 375, so a 36px
+   floor was ABOVE the proportional value and served no purpose except to eat clear space. The
+   seam is position:absolute over the section bottom padding, so its height is subtracted from
+   the visible gap between the last content and the curve: at 375 a 36px seam left only 12-13px
+   of the 48px padding clear, which is what the owner marked. At the true proportional 20px the
+   clear space becomes ~28px AND the slope matches desktop exactly. */
+.bw-seam--flush, .bw-seam--flush-top { height: clamp(20px, 5.42vw, 64px); }
+/* Owner revision 2026-08-25 (#10 /services): --fluid carried its own clamp(40px,5vw,78px),
+   which OVERRODE the flush proportional height and left /services with a 40px seam and only
+   10px of clear space at 375. Aligned to the same viewBox ratio so every flush seam behaves
+   identically. */
+.bw-seam--fluid { height: clamp(20px, 5.42vw, 64px); }
+
+/* --- .bw-seam--flush-top — the EXIT seam, pinned to the top of the section BELOW ---------------
+   A seam leaving a dark band cannot live inside that band. `.bw-seam { color: var(--ds-bg-surface) }`
+   looks like a light fill, but --ds-bg-surface is RE-POINTED to #1E2A33 inside .surface-dark, so a
+   seam parented into the dark section paints dark-on-dark and disappears — measured: the arc was
+   invisible and the band ended on a hard flat edge.
+   The exit seam therefore belongs at the TOP of the LIGHT section that follows, flipped and filled
+   --deep, where it reads as the dark band reaching down into the light with a curved bottom edge.
+   flush-top is the mirror of --flush: same absolute pin, opposite edge, so it clears the light
+   section's own top padding exactly as --flush clears the bottom padding. */
+.bw-seam--flush-top {
+  position: absolute; left: 0; right: 0;
+  /* Mirror of the --flush bleed. At top:-1px this seam sat wholly inside the next section's
+     66px top padding — measured y 4029..4093 against content starting at 4096, a 3px gap, which
+     is the "header almost hits the wavy part" the owner reported. It now bleeds ABOVE the
+     boundary by the same 38% of its height that --flush bleeds below, so both edges of a dark
+     band leave the same clear space. The part that rides up over the band is invisible because
+     --flush-top now paints the band's own bottom colour (see --ds-primary-deep-2 above). */
+  top: calc(-0.38 * clamp(20px, 5.42vw, 64px));
+  width: 100%; margin: 0;
+}
+
+/* ------------------------------------------------------------------
+   T-ARTICLE — concept-a (owner pick)
+   ------------------------------------------------------------------ */
+/* CONCEPT A preview rule. Keyed on [data-rail], NOT a class, so the composition promotes
+   with zero orphan classes (verify-no-orphan-classes scans class= only). Layout only. */
+[data-rail]{position:sticky;top:104px}
+@media (max-width:900px){[data-rail]{position:static;top:auto}}
+
+/* ------------------------------------------------------------------
+   T-FEATURE — concept-a (owner pick)
+   ------------------------------------------------------------------ */
+/* ============================================================================
+   T-FEATURE concept A "Descent" - OBJECT skins only.
+   Token-pure by contract: ZERO colour literals. Every colour resolves through a
+   var(--ds-*) so each object inverts for free inside a .surface-dark band.
+   Layout numbers (px / %) are structure, not brand, and stay literal.
+   Structure layers (section/.container/.row/.col) carry NO skin - every class
+   below sits on an OBJECT inside a .col leaf.
+   ============================================================================ */
+
+/* action cluster - the appointment spine, used at 3 points down the page */
+.bw-actions { display: flex; flex-wrap: wrap; gap: var(--ds-space-sm); margin-top: var(--ds-space-md); }
+.bw-actions--center { justify-content: center; }
+.bw-btn svg { width: 18px; height: 18px; flex: 0 0 auto; }
+
+/* Reading measure for body prose. NOT the structural sheet's .bw-body: verify-grid-accent
+   reserves the name bw-body for the page's SINGLE continuous ground texture and fails a
+   page that repeats it, and this site's own authored fragments never use it. Colour is
+   inherited (the .surface-dark flip re-points it), so this class carries measure only. */
+.bw-prose { max-width: 38rem; }
+
+/* hero stat pair (HERO #20 middle track) */
+.bw-statpair { display: grid; gap: var(--ds-space-md); }
+.bw-statpair .bw-stat {
+  padding-left: var(--ds-space-md);
+  border-left: 3px solid var(--ds-accent);
+}
+.bw-statpair .bw-stat b { font-size: 40px; }
+.bw-statpair .bw-stat span { max-width: 22rem; }
+
+/* hero motif frame - line art inherits ink via currentColor */
+.bw-motif { color: var(--ds-accent-ink); }
+.bw-motif svg { width: 100%; height: auto; max-width: 220px; margin-inline: auto; }
+
+/* §2 the big-type problem statement (SECTION-COMPONENTS #7) */
+.bw-statement {
+  font-family: var(--ds-font-display);
+  /* Stepped down from clamp(21px, 1.9vw, 27px) on 2026-08-19 on the owner's call. At 27px
+     against a 50px h2 the supporting line was reading as a second heading rather than as
+     support, and it was the taller of the two blocks (307px against 171px), so it also
+     dominated the header by sheer area. This tops out near 23px, which holds it clearly
+     above the 20px .bw-lede — the two must not converge, they do different jobs — while
+     leaving the h2 unambiguously first. */
+  font-size: clamp(19px, 1.55vw, 23px);
+  line-height: 1.42;
+  color: var(--ds-ink-heading);
+  max-width: 44rem;
+  margin-bottom: var(--ds-space-md);
+}
+.bw-rule {
+  width: 64px; height: 3px; border: 0; margin: 0 0 var(--ds-space-md);
+  background: var(--ds-accent); border-radius: var(--ds-r-pill);
+}
+
+/* the standard pathway, enumerated. This is a re-segmentation of the approved §2
+   sentences, not new copy, and it is what stops this section sharing a pattern
+   signature with the mechanism row directly below it (the G-SVAR adjacency rule:
+   two neighbours of the same coarse shape read as one row stamped twice). */
+.bw-pathway {
+  counter-reset: step; list-style: none;
+  margin: 0 0 var(--ds-space-md); padding: 0;
+  max-width: 40rem;
+}
+.bw-pathway li {
+  position: relative;
+  padding: 0 0 var(--ds-space-sm) calc(var(--ds-space-lg) + var(--ds-space-xs));
+  color: var(--ds-ink-soft);
+}
+.bw-pathway li::before {
+  counter-increment: step; content: counter(step);
+  position: absolute; left: 0; top: 0;
+  width: 30px; height: 30px; border-radius: var(--ds-r-pill);
+  display: grid; place-items: center;
+  background: var(--ds-accent-soft); color: var(--ds-accent-ink);
+  font-size: 14px; font-weight: 700;
+}
+.bw-pathway li:not(:last-child)::after {
+  content: ""; position: absolute; left: 15px; top: 34px; bottom: 4px;
+  width: 1px; background: var(--ds-line);
+}
+
+/* media frame that STRETCHES to its sibling column (media-fits-track anchor:
+   width:100%;min-width:0 - the capped-media-vs-tall-stack sprawl is what
+   verify-section-density M3 fails, and stretch is the fix) */
+.bw-frame {
+  width: 100%; min-width: 0; height: 100%; margin: 0;
+  /* The frame filled whatever column it sat in, so a SQUARE illustration dropped into a col--full
+     produced a 1112px-wide frame around a 300px drawing (measured on about: figureBox 1112x382,
+     image 1024x300). Four pages do this — about, applied-kinesiology, patient-info, who-its-for.
+     Capping the frame keeps it a figure instead of a band; narrower columns (431px hero, 328px
+     card) are already under the cap and are unaffected. */
+  max-width: 560px; margin-inline: auto;
+  display: grid; place-items: center;
+  padding: var(--ds-space-lg);
+  background: var(--ds-bg-surface-2);
+  border: 1px solid var(--ds-line);
+  border-radius: var(--ds-r-surface);
+  box-shadow: var(--ds-shadow-card);
+  color: var(--ds-accent-ink);
+}
+/* --- .bw-frame--bare — the frame chrome removed, for content that IS the surface --------------
+   Asked for as "in .bw-frame remove the padding, background, border, border-radius, box-shadow".
+   Applied to the base class that would have hit 29 instances across 11 pages and unframed every
+   illustration on the site, including the ones the same review just placed on hormone-therapy and
+   nutritional-counseling. The request arrived alongside "remove the text that says twenty of
+   them", which exists on exactly ONE figure, so it is scoped to that figure as a modifier. The
+   base .bw-frame is untouched and the other 28 keep their frame. Widening this to every frame is
+   one word away: move these declarations up into .bw-frame. */
+.bw-frame--bare {
+  max-width: none;
+  padding: 0;
+  background: none;
+  border: 0;
+  border-radius: 0;
+  box-shadow: none;
+}
+
+.bw-frame svg { width: 100%; height: auto; max-width: 300px; }
+.bw-frame figcaption { margin-top: var(--ds-space-sm); font-size: 13.5px; color: var(--ds-ink-soft); text-align: center; }
+
+/* --- .bw-frame--plate — a standalone illustration PLATE inside a prose column ------------------
+   These figures were injected by a codemod that carried its geometry as an inline style attribute
+   (margin/height/max-width on the figure, aspect-ratio/max-height/object-fit on the img), repeated
+   verbatim 5 times across applied-kinesiology and who-its-for. Inline style is unreviewable, cannot
+   respond to a breakpoint and silently outranks every sheet, so the geometry is named here instead.
+   A plate breaks a reading column, so unlike the media-column frame it must NOT stretch: it hugs its
+   own drawing and keeps its own top rhythm. */
+/* A plate interrupts a LEFT-ALIGNED reading column, so it must start on the same gutter as the
+   prose around it. `.bw-frame` sets margin-inline:auto, which centred each plate at x=510 while
+   every paragraph beside it began at x=164 — measured, and the single loudest "sections are not
+   aligned" defect on the page. It also carried margin-block ... 0, so the paragraph underneath butted
+   straight against the panel with a measured 0px gap. Both corrected here. */
+.bw-frame--plate {
+  height: auto;
+  max-width: 420px;
+  margin-inline: 0;
+  margin-block: var(--ds-space-md);
+}
+.bw-frame--plate img {
+  aspect-ratio: 1 / 1;
+  max-height: 320px;
+  width: 100%;
+  object-fit: contain;
+}
+
+/* --- .bw-frame--inline — an illustration INSIDE an FAQ answer ---------------------------------
+   The shoulder plate sat inside <details> but OUTSIDE .bw-answer, so it was a sibling of the answer
+   box rather than part of it: it inherited none of the answer's measure and centred itself with
+   margin:auto while every word beside it was left-aligned. Re-parented into .bw-answer, it now
+   starts on the answer's own left edge and holds the answer's measure. */
+.bw-frame--inline {
+  height: auto;
+  max-width: 300px;
+  margin: var(--ds-space-md) 0 0;
+}
+.bw-frame--inline img {
+  aspect-ratio: 1 / 1;
+  max-height: 260px;
+  width: 100%;
+  object-fit: contain;
+}
+
+/* --- .bw-bandtex — a full-bleed band texture ---------------------------------------------------
+   The approved textures (§3b) were mounted with a NINE-PROPERTY inline style attribute repeated per
+   placement. Inline style is unreviewable, cannot answer a breakpoint and outranks every sheet, so
+   the geometry is named once here. Purely decorative: it sits BEHIND content on --ds-z-below and
+   takes pointer-events:none, and every mount carries alt="" + aria-hidden per §5.
+   Section is already position:relative, so inset:0 resolves against the band. */
+.bw-bandtex {
+  position: absolute; inset: 0;
+  width: 100%; height: 100%;
+  object-fit: cover;
+  opacity: var(--ds-opacity-faint);
+  z-index: var(--ds-z-below);
+  pointer-events: none;
+}
+/* On a LIGHT band the same opacity that reads as a whisper on dark reads as dirt, and it eats into
+   body-text contrast. Warm mounts run at roughly half, which keeps G-CCONTRAST clear. */
+.bw-bandtex--warm { opacity: calc(var(--ds-opacity-faint) / 2); }
+
+/* CARD-VARIATIONS #3 - minimal icon-top, NO card chrome (spacing only) */
+.bw-icontop { padding-top: var(--ds-space-xs); }
+.bw-icontop svg { width: 40px; height: 40px; color: var(--ds-accent-ink); margin-bottom: var(--ds-space-sm); }
+.bw-icontop h3 { font-size: 20px; margin-bottom: 8px; }
+.bw-icontop p { color: var(--ds-ink-soft); font-size: 15.5px; margin: 0; }
+/* #3 is a chrome-less card: no border, no background, and its <p> zeroes its own margin. Across a
+   row that is fine — the row gap does the separating. STACKED in one column (the recomposed
+   applied-kinesiology §3) nothing separated them at all and consecutive blocks measured 0px apart.
+   Scoped to the adjacent-sibling case, so it is inert in every grid usage. */
+.bw-icontop + .bw-icontop { margin-top: var(--ds-space-lg); }
+
+/* SECTION-COMPONENTS #27 - numbered process steps */
+.bw-fstep {
+  height: 100%;
+  padding: var(--ds-space-md);
+  border-top: 2px solid var(--ds-line);
+  transition: border-color var(--ds-dur) var(--ds-ease);
+}
+.bw-fstep:hover { border-color: var(--ds-accent); }
+.bw-fstep b {
+  display: block;
+  font-family: var(--ds-font-display);
+  font-size: 30px; line-height: 1;
+  color: var(--ds-accent-ink);
+  margin-bottom: var(--ds-space-sm);
+}
+.bw-fstep h3 { font-size: 18px; margin-bottom: 6px; }
+.bw-fstep p { font-size: 15px; color: var(--ds-ink-soft); margin: 0; }
+
+/* the six treatment tools, as links */
+.bw-chiplist { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: var(--ds-space-xs); }
+.bw-chiplist li { margin: 0; }
+/* inline-flex, not the default inline (owner mobile pass 2026-08-21). .bw-chip is itself
+   inline-flex with 7px/14px padding, so the CHIP looked correct while the <a> WRAPPING it
+   stayed an inline box and measured just 20px tall — the tap target was half the size of
+   the thing the eye sees. Making the anchor inline-flex fits it to the chip it contains. */
+.bw-chiplist a { text-decoration: none; display: inline-flex; }
+/* On a finger, take the whole chip to the 44px target (desktop keeps the compact chip). */
+@media (pointer: coarse), (max-width: 768px) {
+  .bw-chiplist a { min-height: 44px; align-items: center; }
+  .bw-chiplist .bw-chip { min-height: 44px; }
+}
+.bw-chiplist .bw-chip { transition: border-color var(--ds-dur) var(--ds-ease), color var(--ds-dur) var(--ds-ease); }
+.bw-chiplist a:hover .bw-chip { border-color: var(--ds-accent); color: var(--ds-accent-deep); }
+
+/* SECTION-COMPONENTS #8 - manifesto / belief statement, left-aligned with rule above */
+.bw-belief {
+  font-family: var(--ds-font-display);
+  font-size: clamp(26px, 2.9vw, 38px);
+  line-height: 1.24;
+  color: var(--ds-ink-heading);
+  max-width: 24ch;
+  margin: 0 0 var(--ds-space-md);
+}
+
+/* SECTION-COMPONENTS #15 - comparison matrix, beside a capped media (no. 14b variant a).
+   A 4-column table has an INTRINSIC minimum width (measured 397px here) that no
+   percentage can shrink, so on a phone it pushes the whole DOCUMENT wide. Two
+   defences, in this order: the matrix RESTRUCTURES to stacked labelled rows below
+   600px (the menu's own "collapses to a single stacked column" rule), and above
+   that the wrapper - never the page - takes any residual horizontal scroll. */
+/* the comparison table butted straight into the paragraph under it — measured 0px. A table is a
+   block object, not a line of prose, so it owns the same rhythm any other block object does. */
+.bw-matrixwrap { width: 100%; min-width: 0; overflow-x: auto; margin-bottom: var(--ds-space-md); }
+.bw-matrix { width: 100%; min-width: 0; border-collapse: collapse; font-size: 15px; }
+.bw-matrix caption { text-align: left; font-size: 13.5px; color: var(--ds-ink-soft); padding-bottom: var(--ds-space-sm); }
+.bw-matrix th, .bw-matrix td { padding: 12px 14px; text-align: left; border-bottom: 1px solid var(--ds-line); vertical-align: top; }
+.bw-matrix thead th { font-size: 13px; line-height: 1.35; color: var(--ds-ink-soft); font-weight: 700; }
+.bw-matrix tbody th { font-weight: 600; color: var(--ds-ink); }
+.bw-matrix .is-this { background: var(--ds-accent-soft); color: var(--ds-accent-deep); font-weight: 700; }
+.bw-matrix thead .is-this { color: var(--ds-accent-deep); }
+
+/* CTA-PATTERNS #6 - ghost text-link with arrow */
+.bw-ghostlink { display: inline-flex; align-items: center; gap: 6px; font-weight: 600; text-decoration: underline; }
+.bw-ghostlink svg { width: 15px; height: 15px; transition: transform var(--ds-dur) var(--ds-ease); }
+.bw-ghostlink:hover svg { transform: translateX(3px); }
+/* Standalone ghostlinks measured 27px tall (4 on the home page). The box cannot
+   simply be padded: .bw-ghostlink is also used INLINE inside running prose (one
+   instance, on /applied-kinesiology), where it is an inline-flex atomic box whose
+   margin box sets the line height - padding it would open that paragraph's
+   leading. CSS cannot tell the two apart either: :only-child and :first-child
+   both count ELEMENTS, not text nodes, so the in-prose instance matches them too.
+   So the HIT AREA is expanded instead of the box - zero layout change in either
+   context. Verified safe before applying: every ghostlink on this site is the only
+   anchor inside its paragraph, so the 44px band cannot steal a neighbour's tap. */
+@media (pointer: coarse){
+  .bw-ghostlink{position:relative}
+  .bw-ghostlink::after{content:""; position:absolute; left:0; right:0;
+    top:50%; transform:translateY(-50%); height:44px}
+}
+
+/* FAQ-ACCORDION #1 - classic expand-rows with a + indicator */
+.bw-faq { border-top: 1px solid var(--ds-line); max-width: 46rem; }
+.bw-faq details { border-bottom: 1px solid var(--ds-line); }
+.bw-faq summary {
+  display: flex; align-items: flex-start; gap: var(--ds-space-md);
+  padding: var(--ds-space-md) 0;
+  cursor: pointer; list-style: none;
+  font-family: var(--ds-font-display); font-size: 19px; line-height: 1.3;
+  color: var(--ds-ink-heading);
+}
+.bw-faq summary::-webkit-details-marker { display: none; }
+.bw-faq summary::after {
+  content: "+"; margin-left: auto; flex: 0 0 auto;
+  font-family: var(--ds-font-body); font-size: 24px; line-height: 1;
+  color: var(--ds-accent-ink);
+  transition: transform var(--ds-dur) var(--ds-ease);
+}
+.bw-faq details[open] summary::after { transform: rotate(45deg); }
+.bw-faq summary:hover { color: var(--ds-accent-deep); }
+.bw-faq .bw-answer { padding: 0 0 var(--ds-space-md); max-width: 40rem; }
+.bw-faq .bw-answer p { color: var(--ds-ink-soft); }
+/* a CLOSED <details> still hands its content a layout box in Chrome (content-visibility,
+   not display:none), so a hidden answer kept a 640x114 rect that reached the accent rule
+   of the block below it and read as 1.96:1 to the painted-pixel contrast meter. Removing
+   the box removes the phantom. */
+.bw-faq details:not([open]) .bw-answer { display: none; }
+
+/* The mechanism row puts its PROSE FIRST in the DOM, so a stacked phone reads
+   heading-then-media instead of media-then-heading (the reading-order defect
+   verify-mobile-quality flags). Only once the columns genuinely sit side by side
+   does the media track move to the left.
+   This is a LAYOUT-only .row modifier in the same family as .row--loose /
+   .row--center, NOT a bw-/kit- skin: the forced grammar bans SKINS on the
+   structure layers, and the structure layers are exactly where layout belongs. */
+@media (min-width: 901px) {
+  .row--mediaright > .col:last-child { order: -1; }
+}
+
+/* the §9 line, poured INLINE at the tail of §8 (never a second closing band - the chrome .precta is the site's single closing conversion band, G-CTA1) */
+.bw-tailask {
+  margin-top: var(--ds-space-lg);
+  padding-top: var(--ds-space-md);
+  border-top: 2px solid var(--ds-accent);
+  max-width: 46rem;
+}
+
+@media (max-width: 900px) {
+  .bw-statpair { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .bw-motif svg { max-width: 180px; }
+  /* SCOPED to the bare frames, corrected 2026-08-19. The owner asked for "padding 0 at
+     max-width 900px" while we were working on the rail frame, and I applied it to the BASE
+     class. That was too wide: the base class carries chrome — background, border, radius,
+     shadow — and zeroing the inset on a frame that still paints a card puts the artwork and
+     the caption hard against a visible border. Measured at 375 it left 28 of 29 frames with
+     content 1px off an edge, across 11 pages, which is what the owner then reported on the
+     "Who ends up in this office" figure.
+
+     A bare frame has no chrome to sit against, so zero is right there and it keeps its own
+     padding:0. Everything else gets 24px rather than the desktop 40px: still a mount, but a
+     narrower one, which is what asking for less inset on a phone was after. */
+  .bw-frame:not(.bw-frame--bare) { padding: var(--ds-space-md); }
+}
+@media (max-width: 600px) {
+  .bw-statpair { grid-template-columns: minmax(0, 1fr); }
+  .bw-actions .bw-btn { width: 100%; }
+
+  /* the matrix stops being a table and becomes one labelled card per row, so the
+     comparison survives on a phone without a sideways scroll */
+  .bw-matrix, .bw-matrix tbody, .bw-matrix tr, .bw-matrix td { display: block; width: 100%; }
+  .bw-matrix thead { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+  .bw-matrix tbody tr {
+    border: 1px solid var(--ds-line);
+    border-radius: var(--ds-r-surface);
+    background: var(--ds-bg-surface);
+    padding: var(--ds-space-sm) var(--ds-space-md);
+    margin-bottom: var(--ds-space-sm);
+  }
+  .bw-matrix tbody th {
+    display: block; width: 100%;
+    padding: 0 0 var(--ds-space-xs);
+    border-bottom: 1px solid var(--ds-line);
+    font-family: var(--ds-font-display); font-size: 17px;
+  }
+  .bw-matrix td {
+    display: flex; gap: var(--ds-space-sm); align-items: baseline;
+    padding: 9px 0; border-bottom: 0;
+  }
+  .bw-matrix td::before {
+    content: attr(data-col);
+    flex: 1 1 0; min-width: 0;
+    font-size: 13px; line-height: 1.35; color: var(--ds-ink-soft);
+  }
+  .bw-matrix td span { flex: 0 0 38%; min-width: 0; font-weight: 600; }
+  .bw-matrix .is-this { background: transparent; }
+  .bw-matrix .is-this span { color: var(--ds-accent-deep); }
+}
+
+/* ------------------------------------------------------------------
+   T-HUB — concept-b (owner pick)
+   ------------------------------------------------------------------ */
+/* ============================================================================
+   T-HUB CONCEPT B - "EDITORIAL RAIL" - concept-only object skins.
+   TOKEN-PURE BY CONTRACT: zero hex literals. Every colour resolves through a
+   var(--ds-*) declared in applied-kinesiology-sacramento-tokens.css, so every
+   object below inverts correctly inside a .surface-dark band.
+   Layout numbers (px / %) are structure, not brand, and stay literal.
+   SKINS ON OBJECTS ONLY - nothing here targets section / .container / .row / .col.
+   ============================================================================ */
+
+.bw-acts { display: flex; flex-wrap: wrap; gap: var(--ds-space-sm); margin-top: var(--ds-space-lg); }
+
+/* ---- hero: the framed treatment photograph (HERO-COMPOSITIONS #1) ---- */
+.bw-shot {
+  position: relative; margin: 0; overflow: hidden;
+  border-radius: var(--ds-r-surface);
+  border: 1px solid var(--ds-line);
+  box-shadow: var(--ds-shadow-lift);
+}
+.bw-shot img { width: 100%; height: 100%; object-fit: cover; aspect-ratio: 4 / 3; }
+.bw-shot__cap {
+  position: absolute; left: var(--ds-space-sm); right: var(--ds-space-sm); bottom: var(--ds-space-sm);
+  display: flex; align-items: center; gap: var(--ds-space-xs);
+  padding: var(--ds-space-xs) var(--ds-space-sm);
+  border-radius: var(--ds-r-control);
+  background: var(--ds-bg-surface);
+  border: 1px solid var(--ds-line);
+  box-shadow: var(--ds-shadow-card);
+  font-size: 14px; font-weight: 600; color: var(--ds-ink);
+}
+.bw-shot__ico {
+  flex: 0 0 auto; width: 24px; height: 24px;
+  display: grid; place-items: center;
+  border-radius: var(--ds-r-pill);
+  background: var(--ds-accent-soft); color: var(--ds-accent-ink);
+}
+.bw-shot__ico svg { width: 14px; height: 14px; }
+.bw-shot--plain { box-shadow: var(--ds-shadow-card); }
+
+/* ---- the routed children as a reading list (SECTION-COMPONENTS #36 main column) ---- */
+.bw-linklist--rich a { padding: var(--ds-space-md) calc(var(--ds-space-xs) / 4); text-decoration: none; }
+.bw-linklist--rich a:hover { text-decoration: none; color: var(--ds-accent-deep); }
+.bw-linklist--rich a,
+.bw-listitem--static { font-family: var(--ds-font-display); font-size: 20px; line-height: 1.28; color: var(--ds-ink-heading); }
+.bw-linklist--rich a span,
+.bw-listitem--static span {
+  display: block; margin-top: calc(var(--ds-space-xs) * .75);
+  font-family: var(--ds-font-body); font-size: 15px; font-weight: 400; line-height: 1.62;
+  color: var(--ds-ink-soft); max-width: 42rem;
+}
+.bw-listitem--static { margin: 0; padding: var(--ds-space-md) calc(var(--ds-space-xs) / 4); color: var(--ds-ink-soft); }
+
+/* ---- the STICKY rail: the appointment CTA pinned for the whole scroll ---- */
+.bw-rail {
+  position: sticky; top: calc(var(--ds-space-2xl) + var(--ds-space-md));
+  padding: var(--ds-space-md);
+  border: 1px solid var(--ds-line);
+  border-radius: var(--ds-r-surface);
+  background: var(--ds-bg-surface-2);
+  box-shadow: var(--ds-shadow-card);
+}
+.bw-rail__lede { font-size: 15px; color: var(--ds-ink-soft); margin: 0 0 var(--ds-space-md); }
+.bw-rail .bw-btn { width: 100%; justify-content: center; }
+.bw-rail__tel {
+  display: flex; align-items: center; justify-content: center; gap: var(--ds-space-xs);
+  min-height: 44px; margin-top: var(--ds-space-sm);
+  font-weight: 700; font-size: 15px; text-decoration: none;
+}
+.bw-rail__ico { width: 18px; height: 18px; color: var(--ds-accent-ink); }
+.bw-rail__ico svg { width: 100%; height: 100%; }
+.bw-rail__rec { margin: var(--ds-space-md) 0 0; padding-top: var(--ds-space-md); border-top: 1px solid var(--ds-line); }
+.bw-rail__rec dt { font-size: 12px; letter-spacing: .12em; text-transform: uppercase; color: var(--ds-ink-soft); font-weight: 700; }
+.bw-rail__rec dd { margin: calc(var(--ds-space-xs) / 4) 0 calc(var(--ds-space-md) / 2); font-family: var(--ds-font-display); font-size: 19px; color: var(--ds-ink-heading); }
+.bw-rail__rec dd:last-child { margin-bottom: 0; }
+
+/* ---- proof: the clearance codes as record chips (PROOF-SECTIONS #5) ---- */
+.bw-codes { list-style: none; display: flex; flex-wrap: wrap; gap: var(--ds-space-xs); margin: var(--ds-space-md) 0 0; padding: 0; }
+.bw-codes .bw-chip { font-family: var(--ds-font-body); font-size: 13px; color: var(--ds-ink-soft); }
+.bw-codes .bw-chip b { font-family: var(--ds-font-display); font-size: 15px; color: var(--ds-accent-ink); }
+
+/* ---- choose: the numbered route (SECTION-COMPONENTS #27) ---- */
+.bw-step {
+  height: 100%;
+  padding: var(--ds-space-md);
+  border-top: 2px solid var(--ds-accent);
+  border-radius: 0 0 var(--ds-r-surface) var(--ds-r-surface);
+  background: var(--ds-bg-surface-2);
+}
+.bw-step__n { display: block; font-family: var(--ds-font-display); font-size: 30px; line-height: 1; color: var(--ds-accent-light); margin-bottom: var(--ds-space-xs); }
+.bw-step b   { display: block; font-family: var(--ds-font-display); font-size: 19px; color: var(--ds-ink-heading); margin-bottom: calc(var(--ds-space-xs) * .75); }
+.bw-step p   { margin: 0; font-size: 14.5px; color: var(--ds-ink-soft); }
+
+@media (max-width: 900px) {
+  .bw-rail { position: static; margin-top: var(--ds-space-lg); }
+}
+
+/* ------------------------------------------------------------------
+   T-INDEX — concept-b (owner pick)
+   ------------------------------------------------------------------ */
+/* ============================================================================
+   T-INDEX · CONCEPT B — "Pinned rail, text index"  (page-scoped OBJECT skins only)
+   TOKEN-PURE BY CONTRACT: zero hex literals. Every colour resolves through a
+   var(--ds-*) from applied-kinesiology-sacramento-tokens.css, whose .surface-dark
+   block re-points the SAME names, so every object inverts inside the dark band.
+   Skins are tix-* OBJECT classes; section/.container/.row/.col carry layout only.
+
+   MEASURED NOTE — brand-card-standard.css repaints every EVEN <main> section at a
+   specificity that beats .section--dark. Checked in a browser: that is harmless on a
+   dark band (the tier gradient is written in the same var names .surface-dark
+   re-points, so it resolves dark), but it DOES drop .section--dark's radial accent
+   bloom. This concept lands its one dark band on an ODD section (§3), so that band
+   keeps its bloom — a small win over placing the dark at slot two.
+   ============================================================================ */
+
+/* --- the centred, type-led opener: no companion image, one column, tight measure --- */
+.tix-open { max-width: 46rem; margin-inline: auto; text-align: center; }
+.tix-open h1 { max-width: none; }
+.tix-open .bw-lede { max-width: 38rem; margin-inline: auto; }
+.tix-open .bw-filters { margin-top: var(--ds-space-lg); justify-content: center; }
+.tix-open .bw-filters__count { margin-left: 0; }
+.tix-open .active-filters { justify-content: center; }
+
+/* --- the rail: the pinned condition and the appointment ask ride the whole scroll --- */
+.tix-rail {
+  position: sticky;
+  top: var(--ds-space-md);
+  padding: var(--ds-space-lg) var(--ds-space-md);
+  background: var(--ds-bg-surface);
+  border: 1px solid var(--ds-line);
+  border-left: 3px solid var(--ds-accent-deep);
+  border-radius: var(--ds-r-surface);
+  box-shadow: var(--ds-shadow-card);
+}
+.tix-rail h2 { font-size: clamp(24px, 2.2vw, 30px); }
+.tix-rail p { font-size: 15.5px; }
+.tix-rail__media {
+  margin: var(--ds-space-md) 0;
+  padding: var(--ds-space-md);
+  border-radius: var(--ds-r-control);
+  border: 1px solid var(--ds-line);
+  background: var(--ds-accent-soft);
+}
+.tix-rail__media svg { width: 100%; height: auto; }
+.tix-rail__acts {
+  margin-top: var(--ds-space-md);
+  padding-top: var(--ds-space-md);
+  border-top: 1px solid var(--ds-line);
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--ds-space-sm);
+}
+.tix-rail__note { margin-top: var(--ds-space-md); }
+@media (max-width: 900px) { .tix-rail { position: static; } }
+
+/* --- the index itself: hairline text rows, two tracks, no pictures --- */
+.tix-index > li { border-top: 1px solid var(--ds-line); }
+.tix-row {
+  display: block;
+  height: 100%;
+  padding: var(--ds-space-sm) var(--ds-space-xs) var(--ds-space-md);
+  text-decoration: none;
+  color: var(--ds-ink);
+  border-radius: var(--ds-r-control);
+  transition: background-color var(--ds-dur) var(--ds-ease);
+}
+/* Owner revision 2026-08-25 (#13): hover animated padding-left from --ds-space-xs to
+   --ds-space-sm, sliding the row text sideways under the cursor. With the tinted background
+   arriving at the same moment, it read as the row growing rather than highlighting. The tint
+   alone is now the affordance and the row no longer moves. The padding-left transition is
+   dropped from the base rule below too, and the prefers-reduced-motion override that existed
+   only to damp that slide goes with it. */
+.tix-row:hover { background: var(--ds-accent-soft); }
+.tix-row b {
+  display: block;
+  font-family: var(--ds-font-display);
+  font-size: 20px;
+  line-height: 1.22;
+  color: var(--ds-ink-heading);
+  margin-bottom: calc(var(--ds-space-xs) * 0.625);
+}
+.tix-row span { display: block; font-size: 14.5px; color: var(--ds-ink-soft); }
+
+/* --- A2 arc seam: this concept spends it at the index-to-dark edge, not at the fold --- */
+/* PINNED, not pulled — fixed 2026-08-17. The pull was `margin-bottom: calc(var(--ds-section-py) *
+   -1)`, i.e. -88px (-64px below 600px) on a box only 78px tall (46px below 600px). A negative bottom
+   margin cannot collapse a box further than its own height, and this seam is nested inside
+   container--full > .row > .col, so the wrapper collapsed to ZERO height and the section's whole
+   bottom padding was laid out BELOW the arc. Measured strip of stranded light ground between the arc
+   and the dark band it hands onto: 10px at 1440, 18px at 375. Caught by pixel-diffing the seam's
+   fill against the ground on both sides — at 375 both sides read #f7f3ec, so the dark arc was
+   floating in light on a page whose seam looked correct at desktop.
+   Pinning to the section's bottom edge is exact at every width. The section is position:relative
+   (global `section` rule) and its bottom padding (88px / 64px) exceeds the seam height, so the arc
+   overlays empty padding and never covers content. */
+.tix-seam {
+  position: absolute; left: 0; right: 0; bottom: -1px;
+  width: 100%;
+  height: 78px;
+  margin: 0;
+  color: var(--ds-primary-deep);
+}
+@media (max-width: 600px) {
+  .tix-seam { height: 46px; }
+}
+
+/* --- the routing band on the dark ground --- */
+.tix-limit { margin-top: var(--ds-space-md); }
+.tix-diagram { color: var(--ds-accent-ink); margin-bottom: var(--ds-space-md); }
+
+/* --- the education close --- */
+.tix-close-acts { margin-top: var(--ds-space-md); }
+
+/* ------------------------------------------------------------------
+   T-PERSONA — concept-c (owner pick)
+   ------------------------------------------------------------------ */
+/* ============================================================================
+   T-PERSONA concept C "The Ladder" - OBJECT SKINS ONLY.
+   Token-pure: every colour resolves through a var(--ds-*), so each object inverts
+   for free inside .surface-dark. Layout numbers are structure and stay literal.
+   Skins sit on OBJECTS; section / .container / .row / .col carry layout only.
+   ============================================================================ */
+
+/* ---- 1. THE OPPOSITIONAL OPENING (HERO-COMPOSITIONS #23) ---- */
+/* Both columns carry EQUAL ink. The catalog's faded-losing-column idiom is
+   deliberately refused: standard medicine is a sequence here, not a verdict. */
+.ak-c-open { padding-block: var(--ak-c-rhythm); }
+.ak-c-open h1 { max-width: 16ch; font-size: clamp(36px, 5.2vw, 64px); }
+.ak-c-lede { max-width: 42rem; font-size: clamp(17px, 1.4vw, 20px); }
+.ak-c-comparerow { margin-top: var(--ds-space-lg); align-items: stretch; }
+.ak-c-side {
+  height: 100%;
+  padding: var(--ds-space-md);
+  border: 1px solid var(--ds-line);
+  border-radius: var(--ds-r-surface);
+  background: var(--ds-bg-surface);
+}
+.ak-c-side--ours {
+  background-image: linear-gradient(168deg, var(--ds-accent-soft) 0%, var(--ds-bg-surface) 100%);
+  border-color: var(--ds-accent);
+}
+.ak-c-side__t {
+  font-family: var(--ds-font-body);
+  font-size: 12px; letter-spacing: .15em; text-transform: uppercase;
+  font-weight: 700; color: var(--ds-accent-ink);
+  margin: 0 0 var(--ds-space-sm);
+}
+.ak-c-route { list-style: none; margin: 0; padding: 0; counter-reset: rt; }
+.ak-c-route li {
+  counter-increment: rt;
+  position: relative; padding: 9px 0 9px 34px;
+  border-bottom: 1px solid var(--ds-line);
+  font-size: 15.5px; line-height: 1.5; color: var(--ds-ink-soft);
+}
+.ak-c-route li:last-child { border-bottom: 0; }
+.ak-c-route li::before {
+  content: counter(rt, decimal-leading-zero);
+  position: absolute; left: 0; top: 11px;
+  font-family: var(--ds-font-body);
+  font-size: 12px; font-weight: 700; letter-spacing: .06em;
+  color: var(--ds-accent-ink);
+}
+.ak-c-ask {
+  font-family: var(--ds-font-display);
+  font-size: clamp(21px, 2vw, 28px); line-height: 1.3;
+  color: var(--ds-ink-heading);
+  margin-bottom: var(--ds-space-sm);
+  max-width: 20ch;
+}
+
+/* ---- 2. THE RUNGS (SECTION-COMPONENTS #27) ---- */
+/* Supporting material is carried INLINE. No rail, no card grid, no exit ramps.
+   ONE rhythm value drives every rung so the ladder's cadence is literally uniform:
+   leading == trailing == --ak-c-rhythm in each band, which is what the section-rhythm
+   gate measures and what makes a numbered read feel like even steps rather than drift. */
+/* -25% owner polish 2026-08-21: was clamp(52px, 5.6vw, 80px). Every term scaled by .75 so the
+   ladder keeps its shape (min/preferred/max all move together). This band system is a SECOND,
+   independent section rhythm -- reducing --ds-section-py alone would have left the who-its-for
+   rungs at the old 80px while every other page tightened to 66px. */
+:root { --ak-c-rhythm: clamp(39px, 4.2vw, 60px); }
+.ak-c-rung { padding-block: var(--ak-c-rhythm); }
+/* The rung numeral carries NO opacity token. --ds-opacity-muted (.72) over accent ink
+   on the warm band measured 2.88:1 against the 3.0 large-text floor: an opacity applied
+   to text is a contrast reduction, and the muted token is calibrated for decorative
+   marks, not for type. The numeral is held back by size and weight instead. */
+.ak-c-num {
+  font-family: var(--ds-font-display);
+  font-size: clamp(34px, 3.4vw, 46px); line-height: 1;
+  color: var(--ds-accent-ink);
+  margin: 0 0 var(--ds-space-xs);
+}
+.ak-c-links a { font-weight: 600; }
+.ak-c-links span { color: var(--ds-line); padding-inline: 5px; }
+.ak-c-motif { width: 100%; max-width: 190px; margin-inline: auto; color: var(--ds-accent-ink); opacity: var(--ds-opacity-muted); }
+
+/* ---- 3. THE STOP RUNG (the one dark band in the body) + the A2 arc seam ---- */
+.ak-c-stop { padding-block: var(--ak-c-rhythm); }
+
+/* --ak-c-paper is captured HERE, on :root, where --ds-bg-surface still holds its light
+   value. A custom property's var() references are substituted at the element that
+   DECLARES it, and descendants inherit the already-substituted result - so .surface-dark
+   re-pointing --ds-bg-surface further down cannot reach back into this one. That is the
+   whole mechanism: it lets an element inside the dark band paint itself in the paper
+   ground it is arcing away from, with no hex literal and no second dark-mode asset. */
+:root { --ak-c-paper: var(--ds-bg-surface); }
+.ak-c-seam {
+  position: absolute; top: 0; left: 0; right: 0;
+  width: 100%; height: clamp(40px, 4.4vw, 64px);
+  margin: 0; pointer-events: none;
+}
+.ak-c-seam path { fill: var(--ak-c-paper); }
+.ak-c-flags { list-style: none; margin: 0 0 var(--ds-space-md); padding: 0; counter-reset: fl; }
+.ak-c-flags li {
+  counter-increment: fl;
+  position: relative; padding: 11px 0 11px 40px;
+  border-bottom: 1px solid var(--ds-line);
+  font-size: 16.5px; line-height: 1.5; color: var(--ds-ink);
+}
+.ak-c-flags li:last-child { border-bottom: 0; }
+.ak-c-flags li::before {
+  content: counter(fl, decimal-leading-zero);
+  position: absolute; left: 0; top: 14px;
+  font-family: var(--ds-font-body);
+  font-size: 12px; font-weight: 700; letter-spacing: .06em;
+  color: var(--ds-accent-ink);
+}
+.ak-c-stop strong { color: var(--ds-ink-heading); }
+
+/* ---- 4. THE STANDALONE QUOTE RUNG (SECTION-COMPONENTS #57) ---- */
+.ak-c-creed { padding-block: var(--ak-c-rhythm); }
+.ak-c-creedline {
+  font-family: var(--ds-font-display);
+  font-size: clamp(19px, 2.1vw, 29px);
+  line-height: 1.4;
+  color: var(--ds-ink-heading);
+  max-width: 30ch;
+  margin: 0;
+}
+
+/* ---- 5. NUMBERED FAQ, everything visible (FAQ-ACCORDION #4) ---- */
+.ak-c-qa { list-style: none; margin: var(--ds-space-md) 0 0; padding: 0; counter-reset: qa; }
+.ak-c-qa > li {
+  counter-increment: qa;
+  position: relative;
+  padding: var(--ds-space-md) 0 var(--ds-space-md) 68px;
+  border-top: 1px solid var(--ds-line);
+}
+.ak-c-qa > li:last-child { border-bottom: 1px solid var(--ds-line); }
+.ak-c-qa > li::before {
+  content: counter(qa, decimal-leading-zero);
+  position: absolute; left: 0; top: calc(var(--ds-space-md) + 3px);
+  font-family: var(--ds-font-display);
+  font-size: 21px; line-height: 1;
+  color: var(--ds-accent-ink);
+}
+.ak-c-qa h3 { font-size: clamp(17px, 1.4vw, 20px); max-width: 34ch; margin-bottom: 8px; }
+.ak-c-qa .bw-body { max-width: 38rem; }
+
+/* ---- 6. THE LAST RUNG, the page's ONLY body CTA (PRICING-SECTIONS #6) ---- */
+.ak-c-last { padding-block: var(--ak-c-rhythm); }
+.ak-c-closeline {
+  margin-top: var(--ds-space-md);
+  padding-top: var(--ds-space-md);
+  border-top: 1px solid var(--ds-line);
+  font-family: var(--ds-font-display);
+  font-size: clamp(18px, 1.7vw, 24px);
+  line-height: 1.4;
+  color: var(--ds-ink-heading);
+  max-width: 30ch;
+}
+.ak-c-acts { display: flex; flex-wrap: wrap; gap: var(--ds-space-sm); margin-top: var(--ds-space-md); }
+
+/* ---- responsive: the grammar reflows, the skins do not change ---- */
+@media (max-width: 900px) {
+  .ak-c-motif { max-width: 150px; margin-top: var(--ds-space-lg); }
+}
+@media (max-width: 600px) {
+  .ak-c-qa > li { padding-left: 44px; }
+  .ak-c-qa > li::before { font-size: 17px; }
+  .ak-c-flags li { padding-left: 34px; font-size: 16px; }
+  .ak-c-acts .bw-btn { width: 100%; }
+}
+
+/* ------------------------------------------------------------------
+   T-COMPANY — concept-a (owner pick)
+   ------------------------------------------------------------------ */
+/* Pinned to the SAME token as the <=600px section padding above (--ds-section-py-sm). It was
+   calc(var(--ds-space-xl) * -1); when section rhythm was retuned -25% on 2026-08-21 a literal
+   space-xl here would have left the pull 16px deeper than the padding it cancels and stranded
+   the page ground under the arc. Both sides now read one token, so they cannot drift. */
+@media (max-width: 600px) { .bw-seam--band { margin-bottom: calc(var(--ds-section-py-sm) * -1); } }
+
+/* ============================================================================
+   CONCEPT A - "The signed letter".  Token-pure: every colour resolves through a
+   var(--ds-*) declared in the locked tokens sheet. Layout numbers are structure.
+   The container cap is the sheet's own var(--ds-container-max); nothing here
+   re-declares a width for the band wrapper.
+   ============================================================================ */
+
+/* the standard tier auto-bands every even section; these explicit grounds must win,
+   so they are declared at higher specificity AND later in the cascade. */
+.tier-standard main > section.section--plain { background-image: none; background-color: var(--ds-bg-surface); }
+.tier-standard main > section.section--warm  { background-image: linear-gradient(180deg, var(--ds-bg-warm) 0%, var(--ds-bg-surface) 100%); }
+.tier-standard main > section.section--dark  {
+  background-image:
+    radial-gradient(72% 130% at 12% 0%, var(--ds-accent-soft) 0%, transparent 58%),
+    linear-gradient(180deg, var(--ds-primary-deep) 0%, var(--ds-primary-deep) 100%);
+}
+
+/* ---- 1. FOUNDER EDITORIAL MASTHEAD (COMPANY-SECTIONS #1) ---- */
+.bw-founder__copy .bw-lede { max-width: 32rem; }
+.bw-founder__sub {
+  font-family: var(--ds-font-body); font-size: 15px; font-weight: 600;
+  letter-spacing: .01em; color: var(--ds-ink-soft);
+  margin: 0 0 var(--ds-space-md); padding-top: var(--ds-space-sm);
+  border-top: 1px solid var(--ds-line); max-width: 30rem;
+}
+.bw-founder__acts { display: flex; flex-wrap: wrap; gap: var(--ds-space-sm); margin-top: var(--ds-space-lg); }
+/* the load-bearing editorial move: a signed credibility line under a hairline. */
+.bw-founder__sig {
+  display: flex; align-items: baseline; flex-wrap: wrap; gap: var(--ds-space-xs) var(--ds-space-sm);
+  margin-top: var(--ds-space-lg); padding-top: var(--ds-space-md);
+  border-top: 1px solid var(--ds-line);
+}
+.bw-founder__sig b { font-family: var(--ds-font-display); font-size: 21px; color: var(--ds-ink-heading); font-weight: 600; }
+.bw-founder__sig span { font-size: 12px; font-weight: 700; letter-spacing: .16em; text-transform: uppercase; color: var(--ds-accent-ink); }
+.bw-founder__portrait {
+  margin: 0; position: relative; width: 100%; min-width: 0;
+  aspect-ratio: 4 / 5; overflow: hidden;
+  border-radius: var(--ds-r-surface);
+  border: 1px solid var(--ds-line);
+  box-shadow: var(--ds-shadow-lift);
+  background-color: var(--ds-bg-surface-2);
+}
+.bw-founder__portrait img { width: 100%; height: 100%; object-fit: cover; object-position: 50% 22%; }
+.bw-founder__portrait figcaption {
+  position: absolute; left: 0; right: 0; bottom: 0;
+  padding: var(--ds-space-lg) var(--ds-space-md) var(--ds-space-sm);
+  font-size: 13px; color: var(--ds-ink-on-dark);
+  background-image: linear-gradient(180deg, transparent 0%, var(--ds-primary-deep) 92%);
+}
+
+/* ---- 2. THE READING COLUMN + the persistent verification rail (SECTION-COMPONENTS #36) ---- */
+.bw-read { max-width: 36rem; }
+.bw-read > p { color: var(--ds-ink); }
+.bw-pull {
+  margin: 0 0 var(--ds-space-lg);
+  padding: var(--ds-space-md) 0 var(--ds-space-md) var(--ds-space-md);
+  border-left: 3px solid var(--ds-accent);
+  font-family: var(--ds-font-display);
+  font-size: clamp(19px, 1.7vw, 23px); line-height: 1.44;
+  color: var(--ds-ink-heading); max-width: 34rem;
+}
+.bw-aside {
+  position: sticky; top: var(--ds-space-2xl);
+  padding: var(--ds-space-md);
+  border-radius: var(--ds-r-surface);
+  box-shadow: var(--ds-shadow-lift);
+  background-image:
+    radial-gradient(90% 120% at 100% 0%, var(--ds-accent-soft) 0%, transparent 62%),
+    linear-gradient(180deg, var(--ds-primary-deep) 0%, var(--ds-primary-deep) 100%);
+}
+.bw-aside h3 { font-size: 19px; margin-bottom: var(--ds-space-sm); }
+.bw-aside dl { margin: 0 0 var(--ds-space-md); }
+.bw-aside dt { font-size: 11.5px; font-weight: 700; letter-spacing: .15em; text-transform: uppercase; color: var(--ds-accent-ink); }
+.bw-aside dd {
+  margin: 3px 0 var(--ds-space-sm); padding-bottom: var(--ds-space-sm);
+  border-bottom: 1px solid var(--ds-line);
+  font-size: 15.5px; color: var(--ds-ink);
+}
+.bw-aside dd:last-of-type { border-bottom: 0; margin-bottom: 0; }
+.bw-aside .bw-btn { width: 100%; justify-content: center; }
+.bw-aside .bw-btn + .bw-btn { margin-top: var(--ds-space-xs); }
+.bw-aside__note { margin: var(--ds-space-sm) 0 0; font-size: 13.5px; color: var(--ds-ink-soft); }
+
+/* ---- 3. TRAINING, carried inline as topic columns (SECTION-COMPONENTS #50) ---- */
+.bw-tech { list-style: none; margin: var(--ds-space-md) 0 0; padding: 0; columns: 2; column-gap: var(--ds-space-lg); }
+.bw-tech li { break-inside: avoid; padding: 11px 0; border-bottom: 1px solid var(--ds-line); font-weight: 600; font-size: 15.5px; }
+.bw-notheld { margin-top: var(--ds-space-lg); padding: var(--ds-space-md); border: 1px solid var(--ds-line); border-left: 3px solid var(--ds-accent-deep); border-radius: var(--ds-r-control); background-color: var(--ds-bg-surface); }
+.bw-notheld p { margin: 0; font-size: 15.5px; color: var(--ds-ink); max-width: 40rem; }
+
+/* ---- 4. THE CREED, uncarded type on the dark ground (COMPANY-SECTIONS #2) ---- */
+.bw-manifesto__lead {
+  font-family: var(--ds-font-display);
+  font-size: clamp(28px, 3.4vw, 46px); line-height: 1.16; letter-spacing: -.014em;
+  color: var(--ds-ink-heading); margin: 0 0 var(--ds-space-lg); max-width: 22ch;
+}
+.bw-manifesto__value {
+  display: grid; grid-template-columns: 44px 1fr; gap: var(--ds-space-md);
+  padding: var(--ds-space-md) 0; border-top: 1px solid var(--ds-line);
+}
+.bw-manifesto__value i {
+  font-style: normal; font-size: 12px; font-weight: 700; letter-spacing: .14em;
+  color: var(--ds-accent-ink); padding-top: 7px;
+}
+.bw-manifesto__line { font-size: 18px; color: var(--ds-ink); margin: 0; max-width: 42rem; }
+.bw-manifesto__sign { margin-top: var(--ds-space-lg); font-size: 16px; color: var(--ds-ink-soft); max-width: 40rem; }
+
+/* ---- 5. ROOTS + the reachable practitioner card (COMPANY-SECTIONS #4) ---- */
+.bw-team__member {
+  padding: var(--ds-space-md);
+  border: 1px solid var(--ds-line); border-radius: var(--ds-r-surface);
+  background-color: var(--ds-bg-surface); box-shadow: var(--ds-shadow-card);
+}
+.bw-team__name { font-family: var(--ds-font-display); font-size: 22px; color: var(--ds-ink-heading); margin: 0 0 2px; }
+.bw-team__role { font-size: 11.5px; font-weight: 700; letter-spacing: .15em; text-transform: uppercase; color: var(--ds-accent-ink); margin: 0 0 var(--ds-space-md); }
+.bw-team__contact { list-style: none; margin: 0; padding: var(--ds-space-sm) 0 0; border-top: 1px solid var(--ds-line); }
+.bw-team__contact li { display: flex; gap: 10px; align-items: baseline; padding: 7px 0; font-size: 15px; color: var(--ds-ink); }
+.bw-team__contact li::before { content: ""; flex: 0 0 auto; width: 6px; height: 6px; border-radius: var(--ds-r-pill); background-color: var(--ds-accent); }
+
+/* ---- 6. STILL LEARNING, a big-number band (TRUST-STATS-SECTIONS #4) ---- */
+.bw-figures { display: flex; flex-wrap: wrap; gap: var(--ds-space-xl); }
+.bw-figures .bw-stat { flex: 1 1 210px; min-width: 0; }
+
+/* ===========================================================================
+   CARD ROWS ON PHONES: scroll, do not stack.
+   A row of 4 receipt cards stacked full width is four screens of scrolling for
+   content the reader is meant to GLANCE at, and on desktop it was reading as one
+   tall column rather than a row. Desktop is handled by each row's own grid; this
+   block is the phone treatment.
+
+   :has(> :nth-child(3)) makes the rule SELF-LIMITING: a row only becomes a slider
+   once it holds 3 or more cards. A 2-card row (bw-figures on dr-van-wagenen,
+   bw-statpair on applied-kinesiology) keeps stacking, where stacking is correct
+   and a 2-item slider would be silly. Any future page picks this up for free.
+
+   No negative margin-inline bleed here on purpose: the container sits inside a
+   .container whose padding is a clamp(), so a fixed bleed would not line up and
+   would risk horizontal page overflow, which the mobile-quality gate fails on.
+   The 78% card width is what makes the next card peek and signals scrollability.
+
+   The class is DOUBLED (.bw-ladder.bw-ladder) on purpose. .tier-bespoke .bw-ladder in the
+   bespoke sheet is also specificity 0,2,0 and that sheet loads AFTER this one, so a single
+   class lost the cascade: overflow-x and scroll-snap applied but display stayed grid and the
+   cards kept stacking. Doubling takes it to 0,3,0 and the slider wins without !important.
+   =========================================================================== */
+@media (max-width: 700px) {
+  .bw-ladder.bw-ladder:has(> :nth-child(3)),
+  .bw-figures.bw-figures:has(> :nth-child(3)),
+  .bw-statpair.bw-statpair:has(> :nth-child(3)) {
+    display: flex;
+    flex-wrap: nowrap;
+    grid-template-columns: none;
+    gap: var(--ds-space-sm);
+    overflow-x: auto;
+    overscroll-behavior-inline: contain;
+    scroll-snap-type: x mandatory;
+    padding-bottom: var(--ds-space-xs);
+    scrollbar-width: none;
+  }
+  .bw-ladder.bw-ladder:has(> :nth-child(3))::-webkit-scrollbar,
+  .bw-figures.bw-figures:has(> :nth-child(3))::-webkit-scrollbar,
+  .bw-statpair.bw-statpair:has(> :nth-child(3))::-webkit-scrollbar { display: none; }
+
+  .bw-ladder.bw-ladder:has(> :nth-child(3)) > *,
+  .bw-figures.bw-figures:has(> :nth-child(3)) > *,
+  .bw-statpair.bw-statpair:has(> :nth-child(3)) > * {
+    flex: 0 0 78%;
+    min-width: 0;
+    scroll-snap-align: start;
+  }
+}
+/* 54px was sized for SHORT numerals (dr-van-wagenen ships "32" and "70-100"). A real licence or NPI
+   is 8-10 glyphs, and at 54px "1730196569" measured 327px inside a 230px cell — the value bled out
+   of its box and read as overlapping text. The no-text-overlap gate does not catch this because the
+   CELLS never overlap; only the glyphs spill. Capped, with a wrap guard so no value can ever bleed. */
+.bw-figures .bw-stat b {
+  font-size: clamp(30px, 2.6vw, 40px);
+  color: var(--ds-accent-ink);
+  overflow-wrap: anywhere;
+}
+.bw-figures .bw-stat span { font-size: 15px; max-width: 20rem; }
+
+/* ---- 7. THE HONEST PRESS STRIP (COMPANY-SECTIONS #5) ---- */
+.bw-press__strip { padding: var(--ds-space-md) 0; border-top: 1px solid var(--ds-line); border-bottom: 1px solid var(--ds-line); }
+.bw-press__strip p { margin: 0; font-size: 17px; color: var(--ds-ink); max-width: 42rem; }
+.bw-press__close { margin-top: var(--ds-space-lg); font-size: 17px; color: var(--ds-ink); max-width: 42rem; }
+
+@media (max-width: 900px) {
+  .bw-aside { position: static; }
+  .bw-founder__portrait { aspect-ratio: 16 / 10; margin-top: var(--ds-space-lg); }
+  .bw-tech { columns: 1; }
+}
+
+/* ------------------------------------------------------------------
+   T-CONTACT — concept-b (owner pick)
+   ------------------------------------------------------------------ */
+/* Concept B object skins: token-pure. */
+.bw-phone{font-family:var(--ds-font-display);font-size:clamp(26px,2.6vw,34px);line-height:1.08;
+  display:inline-block;text-decoration:none;margin:0 0 var(--ds-space-xs)}
+/* The tel: link is the primary conversion action on a local-service site and it
+   rendered a 277x28 tap target on a phone (line-height 1.08 on a 26px face gives
+   a 28px box). Coarse-pointer only, so the desktop lockup keeps its tight optical
+   fit under the hours block. Matches the .ck-fphone treatment from 2026-08-21. */
+@media (pointer: coarse){
+  .bw-phone{display:inline-flex; align-items:center; min-height:44px}
+}
+
+/* The other two STANDALONE tap-to-call links, found by re-auditing what the first
+   pass left behind: /dr-van-wagenen ul.bw-team__contact (110x25) and /conditions
+   .tix-rail__acts (117x27). Both are bare <a href="tel:"> with no class, which is
+   why the .bw-phone rule above did not reach them.
+   DELIBERATELY NOT a blanket `a[href^="tel:"]` rule. Measured first: of 19 in-prose
+   tel: links on this site, 11 sit in a paragraph that ALSO contains another anchor
+   ("Call the office on <tel> to arrange a time", plus a Book link). Making those
+   inline-flex would open the paragraph leading, and giving them a 44px hit band
+   would let that band steal taps from the neighbouring link - trading a small
+   target for a wrong destination. In-prose tel: links are WCAG 2.5.8 exempt and
+   are left exactly as they are. */
+@media (pointer: coarse){
+  .bw-team__contact a[href^="tel:"],
+  .tix-rail__acts a[href^="tel:"]{display:inline-flex; align-items:center; min-height:44px}
+}
+.bw-hours{display:grid;grid-template-columns:minmax(92px,120px) 1fr;gap:6px var(--ds-space-md);max-width:440px;margin:0 0 var(--ds-space-md)}
+.bw-hours dt{font-weight:600;color:var(--ds-ink)}
+.bw-hours dd{margin:0;color:var(--ds-ink-soft)}
+.bw-routes{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:var(--ds-space-md);
+  list-style:none;margin:0;padding:0}
+.bw-routes > li{margin:0;min-width:0}
+/* the mobile pull is obsolete now that --flush is pinned: `bottom:-1px` is width-independent,
+   and re-declaring a negative margin here would reintroduce the same capped-pull bug at 375. */
+
+/* ------------------------------------------------------------------
+   T-LEGAL — concept-c (owner pick)
+   ------------------------------------------------------------------ */
+/* ---------------------------------------------------------------------------
+   CONCEPT C ONLY. Token-pure by contract: ZERO hex literals. Every colour
+   resolves through a var(--ds-*) from the linked tokens sheet (:root plus the
+   .surface-dark flip of the SAME names). The px/% values are LAYOUT geometry.
+   --------------------------------------------------------------------------- */
+
+/* the rail offset matches .bw-legal's own scroll-margin-top in the structural
+   sheet, so a jump link and the sticky rail clear the fixed header identically. */
+:root{ --tpl-rail-top: 120px; }
+
+/* LEGAL-SECTIONS #3: the rail variant of .bw-toc. The base object is a bordered
+   card; the rail strips the card back to a hairline-led column so it reads as an
+   edge of the document rather than a widget floating beside it. The .col it sits
+   in is a stretched flex item, so the rail has full-row height to stick within. */
+.bw-toc--rail{
+  position: sticky;
+  top: var(--tpl-rail-top);
+  max-height: calc(100vh - var(--tpl-rail-top) - var(--ds-space-lg));
+  overflow-y: auto;
+  margin: 0;
+  padding: 0 0 0 var(--ds-space-sm);
+  max-width: none;
+  background: transparent;
+  border: 0;
+  border-left: 2px solid var(--ds-line);
+  border-radius: 0;
+  box-shadow: none;
+}
+.bw-toc--rail .bw-toc__link{ padding-left: var(--ds-space-xs); padding-right: var(--ds-space-xs); }
+
+/* the appointment route, pinned under the index on a hairline so it rides with it */
+.tpl-act{
+  display: flex; flex-wrap: wrap;
+  gap: var(--ds-space-xs);
+  margin: var(--ds-space-md) 0 0;
+  padding-top: var(--ds-space-sm);
+  border-top: 1px solid var(--ds-line);
+  max-width: none;
+}
+.tpl-act .bw-btn{ font-size: 14.5px; padding: 12px 18px; }
+
+/* the structural sheet collapses .col--span-* to 100% at 900px; the rail must
+   UNSTICK at the same breakpoint or it would pin a full-width block over the
+   prose. Below this it degrades to the LEGAL-SECTIONS #2 inline shape. */
+@media (max-width: 900px){
+  .bw-toc--rail{
+    position: static;
+    max-height: none; overflow: visible;
+    padding-left: 0; border-left: 0;
+    margin-bottom: var(--ds-space-lg);
+  }
+}
+
+/* ---- comparison matrix on a phone (G-CCONTRAST fail-closed fix) ----
+   The mobile treatment above already RESTACKES the matrix into labelled rows (each td carries its
+   column name via td::before), and it hid the thead with the 1px clip idiom. A 1px-clipped cell is
+   not zero-size and not off-canvas, so verify-computed-contrast can neither measure nor skip it and
+   fails CLOSED on 2 header cells. The column names are already carried by the td::before labels and
+   the row <th scope="row">, so on a phone the duplicate header row is display:none rather than
+   clipped: nothing is lost, and there is no unmeasurable text left on the page. */
+@media (max-width: 900px) {
+  .bw-matrix thead { display: none; }
+}
+
+/* ===========================================================================
+   .ak-hero — the REBUILT homepage hero (HERO-COMPOSITIONS #18, asymmetric grid)
+   Replaces the #1 split-portrait, 2026-08-17. See the pick: ledger on the section.
+
+   THE MEASUREMENTS THAT DROVE IT (1440, before):
+     type column 617x613 · media column 431x290 · G-DENSITY colD 0.53
+     H1 broke to FOUR lines with a one-word orphan ("Responded")
+     portrait: a 259x258 source in a 290px ring-circle, floating in 431px of column
+
+   THE BINDING CONSTRAINT: images_team_doctor.jpg is 259x258 and it is the ONLY
+   photograph this practice owns (every other candidate is quarantined in
+   _unused-assets/ as unlicensed stock, on the owner's instruction). The imagery
+   rules forbid substituting a generated face for the practitioner. So the media
+   column cannot be made big - it must be made INTENTIONAL. The rail is sized to
+   the source (320px rail, --ds-space-md padding => 270px plate = 1.04x upscale,
+   the same threshold .bw-portrait documents above), and the height the old
+   composition wasted is spent on facts the page already carries: the
+   practitioner's name and credential, the office address, the phone number.
+   No new claim is introduced anywhere in this hero.
+   =========================================================================== */
+.ak-hero { position: relative; }
+
+.ak-hero__grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 400px;
+  gap: var(--ds-space-xl);
+  /* STRETCH, changed from center on 2026-08-19. The original note is kept below because
+     it was correct at the time: stretching made the aside a flex container whose VERTICAL
+     stack of plate + address read to G-DENSITY as a two-COLUMN split, taking the hero from
+     colD 0.01 to 0.66. That stack no longer exists. The address left the card on 08-18 and
+     the practitioner lockup left on 08-19, so the aside now holds exactly ONE child, the
+     word field, and there is no second box for the gate to mistake for a column. Stretch
+     is what lets that field take the full height of the row instead of stopping at a
+     square. If G-DENSITY ever reports a column split on this hero again, suspect this line
+     first; the fallback is center plus an explicit plate height.
+
+     ORIGINAL NOTE: "center, NOT stretch. Measured at 1440 the two columns already land
+     within 1px of each other (type 177..738, rail 178..740) because the rail's content
+     height and the type column's are within 3px by construction, so stretch buys no
+     alignment. It costs something though: stretching forced the rail to be a flex
+     container, and G-DENSITY then read its VERTICAL stack (plate 270 / address 92) as a
+     two-COLUMN split and reported the hero at colD 0.66 instead of 0.01." */
+  align-items: stretch;
+}
+
+/* --- type column --------------------------------------------------------- */
+/* the eyebrow gets the same hairline lead-in the .bw-shead section headers use,
+   so the hero opens in the page's own voice instead of a bare caps line. */
+.ak-hero__brow { display: flex; align-items: center; gap: var(--ds-space-sm); }
+.ak-hero__brow::before {
+  content: ""; flex: 0 0 auto;
+  width: 40px; height: 2px;
+  background: currentColor; opacity: .5;
+}
+
+/* The H1 is 63 characters. The outgoing 16ch cap forced 4 ragged lines and left
+   "Responded" alone on the last one. A wider measure plus text-wrap:balance lets
+   the browser even the lines out; the cap is the guard for when balance is
+   unsupported (it degrades to a normal wrap at a sane measure, never to a
+   full-width 1160px line). The ch sits on the H1 itself, which owns the display
+   font, so it resolves against the right face. */
+.ak-hero h1 {
+  font-family: var(--ds-font-display);
+  max-width: 20ch;
+  text-wrap: balance;
+  letter-spacing: -.012em;
+  line-height: 1.05;
+}
+
+/* --- the practitioner rail ----------------------------------------------- */
+/* deliberately a BLOCK, not a flex column — see the align-items note on the grid. */
+/* padding:0 + overflow:hidden so the portrait runs FULL-BLEED to the card's edges and
+   the radius clips it. The photo is the object; the meta is its caption. While the only
+   source was 259px the photo had to be an inset thumbnail, which is what made the hero
+   read as a headshot floating in a box. */
+.ak-hero__card {
+  /* Card chrome removed 2026-08-18. This was a raised surface because it framed a
+     PHOTOGRAPH: a portrait needs an edge to sit against. It now holds a field of drifting
+     words that belongs to the hero ground itself, and a border plus shadow around drifting
+     text reads as a widget rather than as part of the page. Background, border, radius and
+     shadow all gone; padding and overflow stay, because overflow:hidden is what clips the
+     rails to the card and padding:0 is what lets the word field run full-bleed. */
+  padding: 0;
+  overflow: hidden;
+}
+.ak-hero__meta { padding: var(--ds-space-md); }
+
+/* Full-bleed square plate at the top of the card. 360px displayed from a 900px
+   source is a 0.4x DOWNSCALE — still sharp at 2x device pixel ratio (720px < 900px),
+   which is what the 259px original could never do. object-position leans right
+   because the sitter's head sits right of centre in the frame. */
+.ak-hero__plate {
+  position: relative;
+  margin: 0;
+  /* aspect-ratio dropped 2026-08-19. It was 1/1 because this plate held a SQUARE
+     photograph. It now holds the word field, and with the lockup moved out of the card
+     there is nothing else in the aside, so the field should take the height the row
+     gives it instead of stopping at a square. min-height keeps it substantial if the
+     prose column is ever short. */
+  height: 100%;
+  min-height: 420px;
+  overflow: hidden;
+  /* SIZE CONTAINER, added 2026-08-19, so the word field can derive its lattice pitch from
+     the real size of this box instead of from a table of hardcoded per-breakpoint numbers.
+     It has to be declared HERE and not on .ak-wordcross: container query units resolve
+     against the nearest ANCESTOR container, so an element cannot query itself. Safe on this
+     element because it is sized entirely from the outside (height:100% off the stretched
+     grid row, plus min-height) and its only child is absolutely positioned, so size
+     containment removes nothing that was contributing to the height. */
+  container-type: size;
+  /* container stripped 2026-08-18: the plate held a photograph and needed a ground and a
+     dividing rule under it. It now holds drifting words, which read as part of the card
+     rather than as a framed object, so the warm fill and the border-bottom are gone. */
+}
+.ak-hero__plate img {
+  display: block; width: 100%; height: 100%;
+  object-fit: cover; object-position: 58% 42%;
+  /* LEVELLING THE PORTRAIT. The tilt is in the SOURCE photograph, not in any CSS:
+     nothing transformed it before. Measured on the untouched file, the dominant edge
+     orientation across the frame is 127deg, a diagonal, which is exactly what reads
+     as "leaning"; horizontal+vertical edge energy is only 27.79%.
+
+     ANGLE. A sweep from +8 to -15deg scored each candidate on where its edge energy
+     sits. +8deg was the direction control and is WORSE (dominant edge 179deg), which
+     is how the sign was confirmed rather than assumed. Everything from -7deg onward
+     snaps the dominant orientation to 0deg or 90deg, i.e. the frame stops reading as
+     diagonal. -10deg is the numerical optimum (H+V 31.98%) but -8deg is within half a
+     point (about 31.3%) and needs materially less overscan, so -8 wins on the trade.
+
+     SCALE. Rotating a square inside a square container opens wedges of bare plate
+     ground at the corners unless the image is scaled by cos|d|+sin|d|. At 8deg that
+     is 1.1294 exactly, so no ground shows and the zoom is the smallest that can
+     cover, which preserves the most of the photograph.
+
+     ORIGIN. 50% 50%, deliberately. An off-centre pivot was tried first (50% 42%, to
+     sit on the face) and it FAILED twice over: cos+sin is the cover factor only for a
+     CENTRED pivot, so the corners opened, and the scale expanded through the top of
+     the head and cropped the crown flat. Pivoting at the centre keeps the crown
+     complete and just under the top edge with no bare corners at any width. */
+  /* NUDGE DOWN. Asked for as `margin-top: 10px`. Applied literally it exposed the
+     plate ground at the top corners on ALL THREE plate sizes (measured: corner
+     pixel rgb(242,234,223), which is --ds-bg-warm exactly). Two reasons it cannot
+     work as a fixed margin here: margin is layout, so it shifts the box before the
+     transform and eats into a scale that has no slack (1.1294 is the EXACT cover
+     factor for 8deg); and the plate is 360px on desktop but 116px on a phone, where
+     a fixed 10px is 8.6% rather than 2.8%, so no single scale can cover both.
+     Expressed proportionally instead: 2.78% IS 10px at the 360px desktop plate, and
+     it stays visually the same nudge at 200px and 116px. The scale rises from 1.1294
+     to 1.185, which is the cover factor for 8deg PLUS this offset, so the corners
+     stay filled at every size. translateY sits leftmost so it applies last, against
+     the unscaled border box, and therefore means exactly what it says. */
+  transform: translateY(2.78%) rotate(-8deg) scale(1.185);
+  transform-origin: 50% 50%;
+}
+
+/* Was a flex COLUMN holding just the name and the role. It is now a ROW: a small round
+   portrait, then that same two-line stack beside it. The stack had to be wrapped in its
+   own element so the row has two children rather than three, otherwise the name and the
+   role would sit side by side. */
+/* The lockup now sits AFTER the buttons and closes the hero, so it needs a hairline
+   to separate it from the call to action rather than running straight on from it. */
+.ak-hero__who {
+  margin: var(--ds-space-lg) 0 0;
+  padding-top: var(--ds-space-md);
+  border-top: 1px solid var(--ds-line);
+  display: flex; flex-direction: row; align-items: center;
+  gap: var(--ds-space-sm);
+}
+.ak-hero__whotext { display: flex; flex-direction: column; gap: 3px; min-width: 0; }
+.ak-hero__who b {
+  font-family: var(--ds-font-display);
+  font-size: 19px; font-weight: 600; line-height: 1.25;
+  color: var(--ds-ink-heading);
+}
+/* scoped to the text stack: a bare `.ak-hero__who span` would also style the avatar
+   wrapper and the stack wrapper, both of which are spans. */
+.ak-hero__whotext > span { font-size: 14px; color: var(--ds-ink-soft); }
+
+/* The portrait, small and round. It carries the SAME levelling transform the large plate
+   used before the word cross replaced it: rotate(-8deg) to take out the tilt that is baked
+   into the photograph, scale(1.185) because a rotated square needs cos|d|+sin|d| plus the
+   translate budget to keep its corners covered, and translateY(2.78%) to bring the crown
+   down into frame. In a circular mask an uncovered corner is even more obvious than in a
+   square one, so the scale is doing real work here. */
+.ak-hero__avatar {
+  flex: none;
+  display: block;
+  width: 72px; height: 72px;
+  border-radius: 50%;
+  overflow: hidden;
+  background: var(--ds-bg-warm);
+  border: 1px solid var(--ds-line);
+}
+.ak-hero__avatar img {
+  display: block; width: 100%; height: 100%;
+  object-fit: cover; object-position: 50% 42%;
+  /* NO transform, deliberately. The tilt used to be corrected here with
+     rotate(-12deg) scale(1.245), and that 24.5% zoom was throwing away real pixels from a
+     portrait that began life at 259px, purely to hide a tilt. The rotation is now baked
+     into the FILE (images_team_doctor_level.jpg: the 900px source rotated -12deg and cropped
+     to its largest inscribed square, 756px, no upscale at any point). Measured on the new
+     file with no CSS applied: dominant edge orientation 90deg and H+V energy 31.13%, against
+     127deg and 27.79% for the untouched source. Level in the pixels, so nothing has to be
+     scaled up to make it look level. */
+}
+
+.ak-hero__at {
+  margin: var(--ds-space-md) 0 0;
+  padding-top: var(--ds-space-md);
+  border-top: 1px solid var(--ds-line);
+  font-size: 15px; line-height: 1.5; color: var(--ds-ink-soft);
+}
+.ak-hero__label {
+  display: block;
+  font-size: 11.5px; font-weight: 700;
+  letter-spacing: .11em; text-transform: uppercase;
+  color: var(--ds-accent-ink);
+  margin-bottom: 5px;
+}
+.ak-hero__tel {
+  display: inline-block;
+  margin-top: var(--ds-space-sm);
+  font-family: var(--ds-font-display);
+  font-size: 21px; font-weight: 600;
+  color: var(--ds-ink-heading);
+  text-decoration: none;
+  border-bottom: 2px solid var(--ds-accent);
+  padding-bottom: 1px;
+  transition: color var(--ds-dur) var(--ds-ease);
+}
+.ak-hero__tel:hover, .ak-hero__tel:focus-visible { color: var(--ds-accent-ink); }
+
+/* --- below the split: the rail becomes a strip, not a stacked block -------- */
+/* The old hero stacked a 290px circle UNDER the whole type column on a phone,
+   which is why the band measured 1268px tall at 375. As a horizontal strip the
+   same information costs roughly a fifth of that. */
+@media (max-width: 900px) {
+  .ak-hero__grid { grid-template-columns: minmax(0, 1fr); gap: var(--ds-space-lg); }
+  .ak-hero h1 { max-width: none; }
+  /* the card's two parts (portrait / meta) sit side by side as a strip rather than a
+     tall stack — a 360px portrait above a meta block would cost half a phone screen. */
+  .ak-hero__card {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+    align-items: start;
+  }
+  .ak-hero__tel { justify-self: start; }
+}
+
+/* PHONE (<=600) card: portrait + name on row 1, address and phone spanning FULL width
+   below. `display:contents` dissolves the meta wrapper so its three children become
+   grid items of the card itself — without it the address is trapped in a 139px column
+   beside the plate and "568 N Sunrise Ave, Ste 200 / Roseville, CA 95661" wrapped to
+   FOUR lines. */
+@media (max-width: 600px) {
+  .ak-hero__card {
+    grid-template-areas: "plate plate" "who who" "at at" "tel tel";
+    column-gap: var(--ds-space-md);
+    padding: var(--ds-space-md);
+    align-items: center;
+  }
+  .ak-hero__meta  { display: contents; }
+  /* a SQUARE inset avatar, not a full-bleed column. Stretching the plate to the meta's
+     height made it 120x337 — a 1:2.8 keyhole that cropped 218px (65%) off the width of
+     a square source and sliced through his head. Fixing the ASPECT is the fix; no
+     object-position can rescue a 1:2.8 window onto a 1:1 photograph. */
+  /* was a 116px inset avatar square, sized for a portrait. Four rails of words inside
+     116px is unreadable, so with the photo gone the plate spans the full card width as a
+     short band instead and the name moves onto its own row beneath it. */
+  /* Same two corrections as the tablet band. height:104px had been dead for a while —
+     min-height:420px beat it — so the real phone plate was 279x420, not the 104px strip
+     the old comment described. It is stated outright now rather than left to min-height,
+     because the word field's pitch is derived from a container query and that needs a
+     DEFINITE height to resolve against; an indefinite one computes 0 and flattens the
+     whole lattice onto its centre line. The width cap keeps the box portrait at the top
+     of the range (at 600 the card is 504 wide against a 460 tall plate, which would push
+     the three columns into the middle third); below about 340 the min() just yields the
+     card width, so a 375 phone is unaffected. */
+  .ak-hero__plate {
+    grid-area: plate;
+    width: min(100%, 340px); aspect-ratio: auto; height: 460px;
+    margin: 0 auto var(--ds-space-sm);
+    border: 0;
+    border-radius: 0;
+  }
+  /* 19px left "D.C." orphaned on a third line in the ~155px column beside the plate;
+     16.5px lands the name on two ("Dr. Brian Van / Wagenen, D.C."). */
+  .ak-hero__who { grid-area: who; }
+  .ak-hero__who b { font-size: 16.5px; }
+  .ak-hero__at  { grid-area: at; }
+  .ak-hero__tel { grid-area: tel; }
+}
+
+/* TABLET (601-900): the strip is ~720px wide, so stacking the address under the
+   portrait left the whole right-hand half of the card empty — the same dead-right
+   -side the owner has already called out twice on other sections. Three parts
+   across instead: portrait | name | address + phone, divided by a rule. */
+@media (min-width: 601px) and (max-width: 900px) {
+  /* ONE column, not "200px + the rest". The two-column split was correct while the card
+     held a portrait beside a meta block; both of those have since moved out and the card
+     has exactly one child left. The 200px track was therefore pinning the word field into a
+     200px-wide sliver and leaving the whole right-hand half of the card empty — the same
+     dead-right-side the owner has called out on other sections — and a 200px box cannot
+     carry a three-column lattice at any sane pitch. */
+  .ak-hero__card { grid-template-columns: minmax(0, 1fr); align-items: stretch; }
+  /* A DEFINITE height, and a portrait box. Two separate reasons, both measured.
+
+     height:100% was indefinite here, because at this width the hero grid is a single
+     column and the card's own height is content-driven. The plate still ENDED UP 420px
+     via min-height, so it looked fine — but a container query height unit resolves
+     against a DEFINITE height and silently computes 0 against an indefinite one. That
+     took min(32cqw, 20cqh) to 0 and stacked all eight rails on the centre line: rows
+     [210,210,210,210,210], gaps [0,0,0,0]. Nothing warned; the page just quietly stopped
+     being a lattice. If you ever swap this back to a percentage height, re-run
+     _tmp-railspeed.mjs and check the gaps are non-zero.
+
+     The width cap is the other half. With the card down to one child this plate went
+     full-bleed to 852px against a 420px height — a 2:1 landscape box, where three
+     columns at a square pitch cluster in the middle and leave ~340px dead on each side.
+     The lattice wants roughly a 0.6 portrait to fill evenly (desktop is 400x696), so the
+     plate is capped and centred instead of stretched. Centred leaves symmetric space,
+     which reads as a deliberate motif rather than as the dead right-hand side. */
+  .ak-hero__plate {
+    width: min(100%, 340px); aspect-ratio: auto; height: 460px;
+    margin: 0 auto; border: none; border-radius: 0;
+  }
+  /* inside the meta, name and contact sit side by side so the strip's right half is
+     not left empty — the same dead-right-side already called out on other sections. */
+  .ak-hero__meta {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, auto);
+    column-gap: var(--ds-space-lg);
+    align-items: center;
+    padding: var(--ds-space-lg) var(--ds-space-md);
+  }
+  .ak-hero__who { grid-row: 1; }
+  .ak-hero__at {
+    grid-column: 2; grid-row: 1;
+    margin: 0; padding-top: 0;
+    border-top: none;
+    border-left: 1px solid var(--ds-line);
+    padding-left: var(--ds-space-lg);
+  }
+  .ak-hero__tel {
+    grid-column: 2; grid-row: 2;
+    margin-top: var(--ds-space-sm);
+    padding-left: var(--ds-space-lg);
+    border-left: 1px solid var(--ds-line);
+    align-self: start;
+  }
+}
+
+/* On a PHONE the band's height is set by the LEDE, not by the rail: the bespoke
+   tier sizes it at 20px, which ran the hero paragraph to TEN lines at 375 and put
+   the band at 1334px. The desktop size is right at a 36rem measure and wrong at a
+   327px one, so it steps down here rather than being lowered everywhere. */
+@media (max-width: 600px) {
+  .tier-bespoke .ak-hero .bw-lede { font-size: 17px; line-height: 1.62; }
+  /* the H1's phone size is NOT set here: its clamp lives in the tier sheet at the
+     SAME specificity (0,2,1) and that sheet loads after this one, so it wins on
+     source order. The step-down sits beside the clamp instead. */
+}
+
+/* ===========================================================================
+   .ak-overlap — the ABOUT hero's capability-overlap diagram (S3c token-built motif)
+   Added 2026-08-17, replacing the practitioner photograph in that hero.
+
+   It is MARKUP, not a file, for the reason S3c already records: flux/dev returns
+   gradient mush for an abstract concept. Drawn here it is crisp at any size, costs
+   nothing, carries no licence, and every stroke is currentColor so the dual-surface
+   token flip inverts it for free if the section ever moves to a dark ground.
+   =========================================================================== */
+.ak-overlap {
+  display: block;
+  width: 100%;
+  max-width: 420px;
+  height: auto;
+  margin-inline: auto;
+  color: var(--ds-ink-heading);
+  fill: none;
+  stroke: none;
+}
+.ak-overlap__field {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.25;
+  opacity: .38;
+}
+/* the lens is the argument: the two fields only overlap here. Kept faint so it reads
+   as a shaded region rather than a third solid shape. */
+.ak-overlap__lens { fill: var(--ds-accent); opacity: .13; stroke: none; }
+.ak-overlap__pin  { fill: var(--ds-accent-ink); stroke: none; }
+.ak-overlap__leader {
+  fill: none; stroke: currentColor; stroke-width: 1.25;
+  opacity: .35; stroke-dasharray: 3 4;
+}
+.ak-overlap__lab {
+  font-family: var(--ds-font-body);
+  font-size: 12px; font-weight: 700;
+  letter-spacing: .11em;
+  fill: var(--ds-ink-heading);
+  stroke: none;
+}
+.ak-overlap__lab--mid { fill: var(--ds-accent-ink); }
+.ak-overlap__sub {
+  font-family: var(--ds-font-body);
+  font-size: 12.5px; font-weight: 400;
+  fill: var(--ds-ink-soft);
+  stroke: none;
+}
+
+@media (max-width: 900px) {
+  .ak-overlap { max-width: 340px; }
+}
+
+/* ===========================================================================
+   .ak-pieces / .ak-cadence - two more S3c token-built motifs, added 2026-08-18.
+
+   WHY THEY EXIST. hormone-therapy-management and nutritional-counseling were
+   carrying anatomy illustrations chosen for the slot rather than the subject (a
+   knee joint beside a paragraph about a nutrition credential). S3c's rule is that
+   a CONCRETE subject gets a generated image and an ABSTRACT argument gets drawn
+   markup. Each page's real-image slots now carry on-topic endocrine / digestive
+   anatomy; these two motifs carry the arguments those pages actually make, and
+   they sit in sections that previously held no image at all, so the CWB-063
+   real-image floor of 3 is untouched (inline SVG does not count toward it).
+
+   Same mechanism as .ak-overlap: every stroke is currentColor and every fill is
+   a token, so the .surface-dark flip inverts both for free. .ak-pieces lands on a
+   DARK band, which is exactly the case that mechanism exists for.
+   =========================================================================== */
+.ak-pieces,
+.ak-cadence {
+  display: block;
+  width: 100%;
+  max-width: 560px;
+  height: auto;
+  margin: var(--ds-space-md) auto 0;
+  color: var(--ds-ink-heading);
+  fill: none;
+  stroke: none;
+}
+
+/* --- .ak-pieces: three appointments that never meet, then one that does ----- */
+.ak-pieces__node {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.25;
+  opacity: .38;
+}
+/* the gap IS the argument, so the stubs stop short of each other on purpose */
+.ak-pieces__stub {
+  fill: none; stroke: currentColor; stroke-width: 1.25;
+  opacity: .3; stroke-dasharray: 3 4;
+}
+.ak-pieces__thread {
+  fill: none; stroke: var(--ds-accent-ink);
+  stroke-width: 2; stroke-linecap: round;
+}
+.ak-pieces__pin { fill: var(--ds-accent-ink); stroke: none; }
+.ak-pieces__rule {
+  fill: none; stroke: currentColor;
+  stroke-width: 1; opacity: .18;
+}
+
+/* --- .ak-cadence: one change, then the same baseline, three times ----------- */
+.ak-cadence__base {
+  fill: none; stroke: currentColor; stroke-width: 1.25;
+  opacity: .34; stroke-dasharray: 4 5;
+}
+.ak-cadence__stem {
+  fill: none; stroke: var(--ds-accent-ink);
+  stroke-width: 1.5; stroke-linecap: round;
+}
+.ak-cadence__step { fill: var(--ds-accent-ink); stroke: none; }
+.ak-cadence__mark {
+  fill: none; stroke: currentColor;
+  stroke-width: 1.25; opacity: .45;
+}
+.ak-cadence__num {
+  font-family: var(--ds-font-body);
+  font-size: 11px; font-weight: 700;
+  fill: var(--ds-bg-surface);
+  stroke: none;
+}
+
+/* shared type scale, matching .ak-overlap so the three motifs read as one family */
+.ak-pieces__lab,
+.ak-cadence__lab {
+  font-family: var(--ds-font-body);
+  font-size: 12px; font-weight: 700;
+  letter-spacing: .11em;
+  fill: var(--ds-ink-heading);
+  stroke: none;
+}
+.ak-pieces__lab--key,
+.ak-cadence__lab--key { fill: var(--ds-accent-ink); }
+.ak-pieces__sub,
+.ak-cadence__sub {
+  font-family: var(--ds-font-body);
+  font-size: 12.5px; font-weight: 400;
+  fill: var(--ds-ink-soft);
+  stroke: none;
+}
+
+@media (max-width: 900px) {
+  .ak-pieces,
+  .ak-cadence { max-width: 460px; }
+}
+
+/* SECTION REVEAL
+   One quiet entrance: each top-level <main> section fades up as it scrolls into
+   view. Deliberately restrained (opacity plus a small translate, nothing else),
+   built from the locked motion tokens rather than invented values.
+
+   PROGRESSIVE ENHANCEMENT, and this part is load-bearing: the hidden start state
+   is scoped to .js-reveal, a class the inline head script adds. If JS is off,
+   blocked, or throws, that class never lands and every section renders fully
+   visible. Content is NEVER hidden by CSS alone. That is the difference between
+   an animation and an accidental blank page.
+
+   NO LAYOUT SHIFT: only opacity and transform are animated, so nothing reflows
+   and Cumulative Layout Shift is untouched.
+
+   REDUCED MOTION: the accessibility page states that if the visitor's device is
+   set to reduce motion, the motion on this site stands still. This honours that
+   in CSS as well as in JS, so the promise holds even if the script runs. */
+.js-reveal main > section {
+  opacity: 0;
+  transform: translateY(14px);
+  transition: opacity var(--ds-dur-slow) var(--ds-ease-out),
+              transform var(--ds-dur-slow) var(--ds-ease-out);
+}
+.js-reveal main > section.is-revealed {
+  opacity: 1;
+  transform: none;
+}
+@media (prefers-reduced-motion: reduce) {
+  .js-reveal main > section,
+  .js-reveal main > section.is-revealed {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+}
+
+
+/* ============================================================================
+   ELEVATED PASS — consolidated 2026-09-07.
+   Promoted verbatim from the reviewed preview (Kinesiology-Clinic_Elevated.html)
+   after the owner approved: the B2 fascicle lattice, hero option 1 "paper over
+   weave", the card hover glow (variant A), one-column section headers, and the
+   curve moving to the dark band's FOOT (that last one is markup — see index.html).
+
+   Everything below is ADDITIVE and sits at the end of the sheet so it wins on
+   order without raising specificity. No shipped rule above was edited.
+   ============================================================================ */
+
+/* ---- 1. THE FASCICLE LATTICE (B2) ---------------------------------------- */
+.ak-wordcross{
+  /* Band thickness is DERIVED FROM THE PITCH, never a literal, so it tracks
+     --ak-p: min(32cqw,20cqh) through both plate geometries (400x696 desktop,
+     340x460 at <=900) instead of needing its own breakpoint ladder. */
+  --ak-band: calc(var(--ak-p) * .38);
+  /* THE SEPTUM, and it must scale. A FIXED gutter is the trap: at the 340x460
+     plate the band is 34.8px, so a flat 20px channel leaves 1.3px of fibre per
+     side and the fascicle disappears. Tying it to the band holds BOTH readings
+     at both sizes — measured: 20px channel + 14.2px fibre/side on desktop,
+     16px + 9.4px at 340x460. The floor is set by descender clearance under
+     15px Playfair, the cap by not starving the fibre. */
+  --ak-gut: clamp(14px, calc(var(--ak-band) * .46), 20px);
+}
+.ak-wordcross__rail--h{ height: var(--ak-band); align-items: center; }
+.ak-wordcross__rail--v{ width:  var(--ak-band); align-items: center; }
+/* An absolutely-positioned ::before paints ABOVE a static in-flow flex track,
+   so without this the bands would bury the words. */
+.ak-wordcross__track{ position: relative; z-index: 1; }
+.ak-wordcross__rail::before{ content:""; position:absolute; inset:0; z-index:0; }
+
+/* TWO striped halves with a clear channel between them, rather than one striped
+   field behind the type. Playfair at 12-15px has ~1px hairline strokes — the
+   same weight class as the fibre — and small serif sitting ON hairlines reads
+   muddy. Anatomically the channel IS the perimysial septum between fascicles,
+   so the legibility fix is also the more correct anatomy.
+   The mask is the tendon: unequal half-extents close the band at both ends. */
+.ak-wordcross__rail--h::before{
+  background:
+    repeating-linear-gradient(180deg, rgba(10,107,128,.46) 0 1px, transparent 1px 4px)
+      top/100% calc(50% - var(--ak-gut)/2) no-repeat,
+    repeating-linear-gradient(180deg, rgba(10,107,128,.46) 0 1px, transparent 1px 4px)
+      bottom/100% calc(50% - var(--ak-gut)/2) no-repeat;
+  -webkit-mask-image: radial-gradient(ellipse 50% 120% at 50% 50%, #000 12%, transparent 100%);
+          mask-image: radial-gradient(ellipse 50% 120% at 50% 50%, #000 12%, transparent 100%);
+}
+.ak-wordcross__rail--v::before{
+  background:
+    repeating-linear-gradient(90deg, rgba(30,42,51,.36) 0 1px, transparent 1px 4px)
+      left/calc(50% - var(--ak-gut)/2) 100% no-repeat,
+    repeating-linear-gradient(90deg, rgba(30,42,51,.36) 0 1px, transparent 1px 4px)
+      right/calc(50% - var(--ak-gut)/2) 100% no-repeat;
+  -webkit-mask-image: radial-gradient(ellipse 120% 50% at 50% 50%, #000 12%, transparent 100%);
+          mask-image: radial-gradient(ellipse 120% 50% at 50% 50%, #000 12%, transparent 100%);
+}
+
+/* THE INTERLACE. One mask tile is --ak-p tall with a transparent window at its
+   centre; mask-position:50% 50% anchors a TILE CENTRE to the BOX CENTRE, so the
+   windows land on 50% +/- n*--ak-p — exactly the horizontal rail positions,
+   derived rather than hardcoded, so they cannot drift out of register. */
+.ak-wordcross__rail--v{
+  -webkit-mask-image: linear-gradient(180deg, #000 0 calc(50% - var(--ak-band)/2 - 3px),
+    transparent calc(50% - var(--ak-band)/2 - 3px) calc(50% + var(--ak-band)/2 + 3px),
+    #000 calc(50% + var(--ak-band)/2 + 3px) 100%);
+  -webkit-mask-size: 100% var(--ak-p); -webkit-mask-position: 50% 50%; -webkit-mask-repeat: repeat;
+          mask-image: linear-gradient(180deg, #000 0 calc(50% - var(--ak-band)/2 - 3px),
+    transparent calc(50% - var(--ak-band)/2 - 3px) calc(50% + var(--ak-band)/2 + 3px),
+    #000 calc(50% + var(--ak-band)/2 + 3px) 100%);
+          mask-size: 100% var(--ak-p); mask-position: 50% 50%; mask-repeat: repeat;
+}
+
+/* MOTION STAYS OPT-IN, same contract as the rails above it. Under `reduce` the
+   bands simply hold at full opacity, which is a finished graphic on its own. */
+@keyframes ak-fascicle { 0%,100%{ opacity:.85 } 50%{ opacity:1 } }
+@media (prefers-reduced-motion: no-preference){
+  .ak-wordcross__rail--h::before{ animation: ak-fascicle 19s ease-in-out infinite; }
+  .ak-wordcross__rail--v::before{ animation: ak-fascicle 23s ease-in-out infinite; }
+}
+
+/* ---- 2. HERO — "PAPER OVER WEAVE" ---------------------------------------- */
+/* ===========================================================================
+   HERO OPTIONS. Every option KEEPS the B2 fascicle lattice — the only thing
+   that changes is how big it is, where it sits, and what composes with it.
+   Shared promotion first: the lattice leaves its 400px aside and becomes the
+   hero's own field. .ak-hero is already position:relative, so an absolutely
+   positioned child resolves against it and skips the unpositioned
+   .container/.row/.col grammar — the same trick .bw-bandtex already uses.
+   =========================================================================== */
+.ak-hero{ isolation:isolate; }
+.ak-hero__grid{ grid-template-columns:minmax(0,1fr); }
+.ak-hero__card{
+  position:absolute; inset:0; z-index:0; pointer-events:none; }
+.ak-hero__plate{
+  position:absolute; inset:0; width:auto; height:auto; min-height:0; margin:0;
+  /* inset:0 still gives container-type:size a DEFINITE box, so cqh resolves and
+     --ak-p does not silently collapse. */ }
+.ak-hero__type{ position:relative; z-index:2; }
+/* The field is wide and short now, so 20cqh binds and the pitch shrinks —
+   which is why the extra vertical rails below are cloned in. */
+.ak-wordcross{
+  -webkit-mask-image:none; mask-image:none; }
+.ak-wordcross__rail--v4{ left:calc(50% - 2*var(--ak-p)); }
+.ak-wordcross__rail--v5{ left:calc(50% + 2*var(--ak-p)); }
+.ak-wordcross__rail--v6{ left:calc(50% - 3*var(--ak-p)); }
+.ak-wordcross__rail--v7{ left:calc(50% + 3*var(--ak-p)); }
+@media (prefers-reduced-motion: no-preference){
+  .ak-wordcross__rail--v4 .ak-wordcross__track{ animation:ak-word-down 22s linear infinite; }
+  .ak-wordcross__rail--v5 .ak-wordcross__track{ animation:ak-word-up   27s linear infinite; }
+  .ak-wordcross__rail--v6 .ak-wordcross__track{ animation:ak-word-up   25s linear infinite; }
+  .ak-wordcross__rail--v7 .ak-wordcross__track{ animation:ak-word-down 29s linear infinite; }
+}
+
+/* --------------------------------------------------------------------------
+   OPTION 1 — PAPER OVER WEAVE
+   The lattice runs the whole band. The type sits on an opaque wedge of warm
+   paper that the weave slides out from behind, so nothing needs a scrim and
+   the paper ground stays the paper ground.
+   -------------------------------------------------------------------------- */
+.ak-hero::before{
+  content:""; position:absolute; inset:0; z-index:1; pointer-events:none;
+  /* The opaque run must CLEAR THE TEXT COLUMN, not merely start under it.
+     Measured at 1440: the type block spans x=164..708, so its right edge is at
+     49.2% of the viewport. The first pass held full opacity only to 30% and was
+     already down to ~.72 by 56%, which left 5.31% of the pixels behind the text
+     modulated by the drifting lattice (max delta 25/255) — i.e. the text's
+     contrast depended on where the animation happened to be. Holding opacity to
+     64% puts the whole type column on solid paper and starts the dissolve after
+     it, so no contrast ratio in the hero is a function of the animation. */
+  /* THE STOP IS DERIVED, NOT GUESSED. A percentage cannot work here: the text
+     column is a fixed 43rem inside a centred container, so its right edge as a
+     FRACTION of the viewport slides from 79% at 901px to 58.3% at 1600px
+     (measured). Any single percentage is therefore wrong at one end — 64% was
+     correct at 1440 and left 2.18% of the text at 1024 sitting on the lattice
+     at delta 36. Computing the same number the layout computes removes the
+     breakpoints entirely: container inset + the column's own width.
+     The +16px covers the gradient's 96deg tilt, where a length along the axis
+     is cos(6deg) ~= 0.9945 of the horizontal distance it has to cover. */
+  --ak-wedge: calc(max(var(--ds-space-md), (100vw - var(--ds-container-max)) / 2) + 43rem + 12px);
+  /* 90deg, NOT 96. At an angle the gradient LINE is longer than the box
+     (|W·sin A| + |H·cos A|) and it starts outside the corner, so a px stop of
+     728px stopped well short of x=728 — measured 4.27% of the text on the
+     lattice at 901px, delta 106, WORSE than the percentage it replaced. Square
+     to the box, px stops map to x exactly and the derived value is honest.
+     The fade is deliberately short: the weave should arrive quickly once it is
+     clear of the type, not dissolve across a third of the screen. */
+  background:linear-gradient(90deg,
+    rgba(255,253,250,1) 0 var(--ak-wedge),
+    rgba(255,253,250,.88) calc(var(--ak-wedge) + 40px),
+    rgba(255,253,250,0)   calc(var(--ak-wedge) + 150px));
+}
+/* THE CURVE SEAM MUST STAY CRISP. It ships position:static, so it cannot stack
+   and the paper wedge (z-index 1) painted straight over its left half, dissolving
+   the arc into the gradient. Give it a stacking position and lift it above both
+   the field and the paper — the weave then runs UNDER the arc into the dark band,
+   which is the join this hero was always built around. */
+/* SCOPED TO THE HERO. An unscoped `.bw-seam` selector here also hit the EXIT
+   seam further down the page and overrode its position:absolute with relative,
+   which unpinned it from the section top and killed the curve at the dark band's
+   foot. Only the hero's own in-flow seam needs lifting. */
+.ak-hero .bw-seam{ position:relative; z-index:3; }
+.ak-hero .bw-seam--band{ display:block; }
+
+/* MEASURE + RHYTHM, tuned from measurement not preference. At 34rem (544px)
+   the H1 set to FOUR lines and the lede to SEVEN, and the hero stood 1007px.
+   Widening the column is what removes lines without touching a word of the
+   approved copy. Measured sweep at 1440: 640px -> 3/6 lines, 688px -> 3/5,
+   and 736px and 784px both return 3/5 as well — so 688px is the point where
+   the gain stops and anything wider is measure spent for nothing. The H1 stays
+   at the approved 58px; dropping it to 54px saved only a further 14px and was
+   not worth shrinking the headline for.
+   Result: H1 4->3 lines, lede 7->5, hero 1007px -> 878px. */
+.ak-hero__type{ max-width:43rem; }
+/* brand-card-bespoke.css declares `.tier-bespoke .bw-lede{max-width:36rem}` (0,2,0)
+   and is linked AFTER this sheet, so an equal-specificity `.ak-hero .bw-lede`
+   loses and the lede stayed at 576px. body.tier-bespoke .ak-hero (0,3,1) wins. */
+body.tier-bespoke .ak-hero .bw-lede{ max-width:43rem; }
+/* The gaps close with the lines. h1's 29px bottom margin and the 40px lead-ins
+   on the byline and the action row were set against a taller stack. */
+.ak-hero h1{ margin-bottom:18px; }
+.ak-hero__who{ margin-top:32px; padding-top:20px; }
+.ak-hero .bw-acts{ margin-top:32px; }
+/* AT <=900 THE WEDGE MUST ROTATE. The grid collapses to one column, so the type
+   spans nearly the full width — measured right edge 74% at 768 and 93.8% at 390 —
+   and a LEFT-anchored horizontal wedge no longer covers it: 3.51% of the text
+   backdrop was lattice-modulated at 768 (max delta 45) and delta 112 at 390.
+   A TOP-anchored vertical wedge is the correct axis once there is no right-hand
+   zone left: the type sits on solid paper, and the lattice surfaces in the bottom
+   band and runs into the arc, which is where it wanted to go anyway. */
+@media (max-width:900px){
+  .ak-hero::before{
+    background:linear-gradient(180deg,
+      rgba(255,253,250,1) 0 78%,
+      rgba(255,253,250,.94) 88%,
+      rgba(255,253,250,0) 97%);
+  }
+}
+/* H1 SIZING — SPECIFICITY IS LOAD-BEARING HERE, do not simplify the selector.
+   brand-card-bespoke.css is linked AFTER this sheet and declares
+   `.tier-bespoke .ak-hero h1 { font-size: clamp(38px, 4.3vw, 62px) }` (0,2,1),
+   so a plain `.ak-hero h1` (0,1,1) loses and the heading rendered 61.92px here
+   against 58px in the approved preview — five lines instead of four, which then
+   pushed the hero, the plate and --ak-p out with it (measured: plate 1091px vs
+   1026px, band 82.9px vs 77.9px). `body.tier-bespoke` (0,2,2) wins.
+   SCOPED to >=601px on purpose: bespoke sets 33px at <=600px in its own media
+   block, and that mobile size is still correct — this must not clobber it. */
+.ak-hero h1{ max-width:20ch; }
+@media (min-width: 601px){
+  body.tier-bespoke .ak-hero h1{ font-size:clamp(38px,4.05vw,58px); line-height:1.06; }
+}
+
+/* ---- 3. CARD HOVER GLOW — the .bw-glass ladder --------------------------- */
+.bw-ladder .bw-glass{
+  position:relative; isolation:isolate;
+  transition: transform var(--ds-dur) var(--ds-ease),
+              border-color var(--ds-dur) var(--ds-ease),
+              box-shadow var(--ds-dur) var(--ds-ease);
+}
+
+/* --- A · EDGE — the rim lights and the card lifts. Quietest. ------------- */
+.bw-ladder .bw-glass:hover{
+  transform:translateY(-3px);
+  border-color:var(--ds-accent-light);
+  box-shadow:
+    0 0 0 1px rgba(47,179,206,.30),
+    0 14px 34px -14px rgba(47,179,206,.45),
+    0 0 44px -8px rgba(47,179,206,.22);
+}
+
+@media (prefers-reduced-motion: reduce){
+  .bw-ladder .bw-glass{ transition:none; }
+  .bw-ladder .bw-glass:hover{ transform:none; }
+}
+
+/* ---- 4. SECTION HEADERS — ONE COLUMN ------------------------------------- */
+/* ===========================================================================
+   .bw-shead — ONE COLUMN, LEFT ALIGNED.
+   The shipped component is a 7fr/5fr grid above 900px with the heading in
+   column 1 and the lede in column 2. Collapsing it to a single track has to
+   move the lede's grid-column too, or it stays parked in a now-nonexistent
+   second column. The eyebrow already spans 1/-1, so it needs nothing.
+   =========================================================================== */
+@media (min-width: 900px){
+  .bw-shead{ grid-template-columns: minmax(0,1fr); }
+  .bw-shead h2{ grid-column: 1; max-width: 24ch; }
+  .bw-shead > .bw-lede,
+  .bw-shead > .bw-statement{
+    grid-column: 1;
+    margin-top: var(--ds-space-sm);
+    max-width: 60ch;
+    align-self: start;
+  }
+}
+
+/* ---- 5. LATTICE PRESENCE — owner call: make the motion graphic more visible.
+   The shipped word opacities were tuned for a 400px plate tucked in an aside.
+   Now the lattice is the hero's whole field and reads too faint at that
+   setting, so both axes are lifted. Contrast is not a constraint here: the
+   block is aria-hidden decoration and NO hero text sits on it — the paper
+   wedge holds the type on solid ground (verified by pixel-diff), so raising
+   these cannot move any text contrast ratio. ------------------------------- */
+.ak-hero .ak-wordcross__rail--h span{ opacity:.78; }
+.ak-hero .ak-wordcross__rail--v span{ opacity:.40; }
+.ak-hero .ak-wordcross__track span::after{ opacity:.6; }
+/* two more horizontal rails, off the same pitch as the five that ship */
+.ak-wordcross__rail--h6{ top: calc(50% - 3 * var(--ak-p)); }
+.ak-wordcross__rail--h7{ top: calc(50% + 3 * var(--ak-p)); }
+@media (prefers-reduced-motion: no-preference){
+  .ak-wordcross__rail--h6 .ak-wordcross__track{ animation: ak-word-right 33s linear infinite; }
+  .ak-wordcross__rail--h7 .ak-wordcross__track{ animation: ak-word-left  29s linear infinite; }
+}

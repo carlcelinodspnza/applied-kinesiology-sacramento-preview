@@ -1,0 +1,145 @@
+/* ============================================================================
+   brand-card-bespoke.css — the BESPOKE tier treatment (token-pure)
+   applied-kinesiology-sacramento · SYSTEM stage, 2026-08-10
+
+   WHO GETS THIS TIER: exactly ONE page — `index` (T-HOME), the only bespoke:true row
+   in sitemap.yaml (owner decision F3). The homepage is the analytical router built LAST,
+   and it is the only surface allowed the full material vocabulary.
+
+   WHAT THE TIER ADDS over standard: a taller hero band, the A2 arc seam between every
+   major movement, glass tiles on dark ground, and a wider container so the 12-slot V6
+   homepage composition can breathe.
+
+   TOKEN-PURE: zero brand hex. Every value resolves through the locked tokens sheet.
+   ============================================================================ */
+
+/* --- the bespoke hero runs taller and carries the practitioner rail (V6 B3) ---
+   GROUND REBUILT 2026-08-17 alongside .ak-hero (structural sheet). The outgoing
+   ground was ONE top-to-bottom linear wash with a single wide radial over it,
+   which at 1440 painted a flat grey-cream field across the whole band - the
+   "washed photocopy" read, and the reason the empty right-hand third had nothing
+   to sit against. This paints TWO placed masses instead: a warm one behind the
+   type column and an accent bloom behind the practitioner rail, so each half of
+   the composition has its own ground. Same three tokens, no new colour. */
+/* SEAM ARITHMETIC, fixed 2026-08-17 (owner screenshot: the wave's right end was amputated,
+   leaving a hard step instead of a curve).
+   `.bw-seam--band` cancels its section's bottom padding with a negative margin hard-coded to
+   `--ds-section-py` (and to `--ds-space-xl` below 600px). That is exact for every section that
+   uses the DEFAULT `section` padding — and this hero is the one section that overrides it, so the
+   pull exceeded the pad and the surplus hung below the hero's `overflow: hidden` and was cut:
+       >=901  pad 64 vs pull 88 -> 24px of arc cut
+       601-900 pad 40 vs pull 88 -> 48px cut (80% of a 60px seam)
+       <=600  pad 40 vs pull 64 -> 24px cut
+   All three matched the rendered measurements exactly. The pad and the pull are now ONE variable,
+   so they cannot drift apart again; a future change to the hero's bottom padding carries the seam
+   with it automatically. NOTE for anyone tempted by `--bw-seam--flush` here instead: pinning would
+   also fix the cut, but its 78px box against this hero's 64/40px bottom padding would overlap the
+   action row and the practitioner rail. Matching the pull is the safe fix. */
+/* -25% owner polish 2026-08-21: hero padding was 96px top / 64px bottom -> 72 / 48. --hero-pad-b
+   stays a variable because .tier-bespoke .bw-hero .bw-seam--band pulls by calc(var(--hero-pad-b) * -1)
+   -- the arc's landing tracks this automatically, so the seam needs no separate edit. */
+.tier-bespoke .bw-hero {
+  --hero-pad-b: calc(var(--ds-space-xl) * .75);
+  padding: calc(var(--ds-space-2xl) * .75) 0 var(--hero-pad-b);
+  overflow: hidden;
+  background-color: var(--ds-bg-surface);
+  background-image:
+    radial-gradient(36% 50% at 98% -10%, var(--ds-accent-soft) 0%, transparent 60%),
+    radial-gradient(104% 64% at 14% -6%, var(--ds-bg-warm) 0%, transparent 74%);
+}
+/* The 16ch cap is what forced the H1 into four ragged lines with a one-word
+   orphan. It lived HERE, at tier specificity, so the object sheet could not
+   loosen it. Measure now belongs to .ak-hero h1 (20ch + text-wrap:balance). */
+.tier-bespoke .ak-hero h1 { font-size: clamp(38px, 4.3vw, 62px); }
+
+/* --- the homepage may run wider than the template pages --- */
+.tier-bespoke .container { max-width: var(--ds-container-max); }
+.tier-bespoke .container--wide { max-width: none; padding-inline: var(--ds-space-lg); }
+/* .container--full MUST be restated at tier specificity for the same reason --wide is, and it was
+   missing. FIXED 2026-08-11. The structural sheet declares `.container--full { max-width:none;
+   padding-inline:0 }` at specificity (0,1,0); the `.tier-bespoke .container` line directly above is
+   (0,2,0) and therefore BEAT it on every full-bleed wrapper on the home page. Measured consequence at
+   1440: all FOUR A2 arc seams rendered in a box of 140..1300 (1160px, the reading container) instead
+   of 0..1440, so each band transition showed a flat gap from 0..140, a hard vertical cut at x=1300,
+   and the arc only drawn across the middle - on the one page the arc seam is the signature of. Every
+   tier-standard page was already correct (`.container--full` there computes max-width:none and the
+   seams measure 0..1440), which is what made this look intentional rather than broken. The modifier
+   now wins on tier-bespoke too, so the seam is full-bleed on the marquee page as it is everywhere
+   else. Pre-dates the 2026-08-11 dark-band work; found while eye-reading the new seam. */
+.tier-bespoke .container--full { max-width: none; padding-inline: 0; }
+
+/* --- movement seams: the arc appears between every major band, not just once --- */
+.tier-bespoke .bw-seam { height: 92px; }
+
+/* --- glass tiles on dark ground (on-register for this vertical) --- */
+.tier-bespoke .bw-glass {
+  padding: var(--ds-space-lg) var(--ds-space-md);
+  border-radius: var(--ds-r-surface);
+}
+
+/* --- the trust ladder: counters -> team -> testimonials, stacked deliberately (V6) --- */
+.tier-bespoke .bw-ladder {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: var(--ds-space-md);
+}
+
+/* --- services grid is the spine and the page's table of contents (V6 G4) --- */
+.tier-bespoke .bw-spine {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: var(--ds-space-md);
+}
+.tier-bespoke .bw-spine .bw-card:hover {
+  transform: translateY(-5px);
+  border-color: var(--ds-accent);
+}
+
+/* --- the homepage lede sits larger than a template page's --- */
+.tier-bespoke .bw-lede { font-size: 20px; max-width: 36rem; }
+
+/* --- education band (V6: conversion is education G5, never pricing, for this client) --- */
+/* FLUID band rhythm, and it must stay fluid. A flat value here outranks the structural sheet's
+   `section { padding: … }` (0,2,0 vs 0,0,1) INCLUDING inside the <=600px media query, so a flat
+   72px would hold on a phone while every neighbour dropped to 48px -- and G-CADENCE rule B fails
+   any section whose edge gap exceeds the page median by more than 24px.
+   Endpoints scaled -25% with the rest of the page (owner polish 2026-08-21): was
+   clamp(64px, 9vw, 96px) -> clamp(48px, 6.75vw, 72px). The floor is --ds-section-py-sm, the SAME
+   token the phone section rhythm uses, so at 375 this band matches its neighbours exactly.
+   !important IS LOAD-BEARING, and this is the one place in the build that uses it. index.content.html
+   still carries style="padding-block:clamp(var(--ds-space-xl), 9vw, var(--ds-space-2xl))" on this
+   <section> -- the 2026-08-11 workaround for G8 being unwritable. An inline declaration outranks any
+   selector, so without !important this band alone would keep the OLD 96px rhythm while every other
+   section tightened to 66px, and G-CADENCE rule B would fail the home page (measured: §10[96/96] vs a
+   page median of 66). The inline style could not simply be deleted: G-IMG-CAP blocks every write to
+   index.content.html over PRE-EXISTING marquee-track image reuse (the rails legitimately repeat each
+   asset 3x to cover the track, which the cap counts as a content defect and has no exemption for).
+   WHEN THAT IS RESOLVED: delete the inline style from the <section>, then drop the !important here. */
+.tier-bespoke .bw-educate {
+  /* Owner 2026-08-24: a further -20% on top of the 08-21 -25%, paired with the matching -20%
+     on .ck-band in chrome.css -- these two are adjacent on index and the combined 164px of dead
+     whitespace between them read as a break in the page. 48/6.75vw/72 * .8 -> 38.4/5.4vw/57.6. */
+  padding-block: clamp(calc(var(--ds-section-py-sm) * .8), 5.4vw, calc(var(--ds-space-2xl) * .6)) !important;
+  padding-inline: 0;
+  background-image: linear-gradient(180deg, var(--ds-bg-surface-2) 0%, var(--ds-bg-warm) 100%);
+}
+
+/* the seam's pull IS the hero's bottom pad, so the arc always lands exactly on the section's
+   bottom edge and nothing hangs below the clip. Wins over the generic `.bw-seam--band` rule
+   (0,1,0) and over its <=600px override (0,1,0 in a later media block) on specificity (0,3,0). */
+.tier-bespoke .bw-hero .bw-seam--band { margin-bottom: calc(var(--hero-pad-b) * -1); }
+
+@media (max-width: 900px) {
+  /* -25% owner polish 2026-08-21: was var(--ds-space-lg) (40px) -> 30px. */
+  .tier-bespoke .bw-hero { --hero-pad-b: calc(var(--ds-space-lg) * .75); }
+  .tier-bespoke .bw-hero h1 { max-width: none; }
+  .tier-bespoke .bw-seam { height: 60px; }
+}
+
+/* The hero H1's phone step-down. It has to live HERE, next to the clamp: the
+   structural sheet's equivalent rule is the same specificity (0,2,1) and loses on
+   source order because this sheet is linked after it. 38px ran the headline to six
+   lines on a 327px measure. */
+@media (max-width: 600px) {
+  .tier-bespoke .ak-hero h1 { font-size: 33px; line-height: 1.12; }
+}

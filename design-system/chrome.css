@@ -664,3 +664,68 @@ body.ck-open .sticky-cta{display:none}
   .ck-mega__panel{opacity:1; transform:none}
   .ck-cta:hover,.ck-act--solid:hover,.ck-phone:hover{transform:none}
 }
+
+
+/* ==========================================================================
+   MEGA DROPDOWN — layout option D, owner-selected 2026-09-28.
+   "go with D, keep all corners a bit rounded and detached with enough space
+   from the nav bar"
+
+   The mega only ever paints at >=1280px (`.ck-mega.is-open{display:block}` is
+   inside that query and the base rule is display:none), so none of this needs
+   a media query and none of it can reach the mobile drawer.
+   ========================================================================== */
+
+/* THE DETACHMENT GAP IS PADDING ON THE WRAPPER — deliberately not a `top` offset.
+   The hover listeners are bound to .ck-mega (the full-width wrapper), NOT to the
+   visible .ck-mega__panel:
+       p.addEventListener('mouseleave', hoverClose)   // p === .ck-mega
+   Keeping the gap inside the wrapper means the pointer travelling from the caret
+   down into the card never leaves the hover surface, so the 220ms CLOSE_MS grace
+   is never armed. `top: calc(100% + 10px)` would put that space OUTSIDE the hover
+   surface and the panel would flicker shut on the way down. */
+.ck-mega{ padding-top:10px; }
+
+/* DETACHED CARD. The shipped rule fused the panel to the bar: `border-top:0` and
+   `border-radius:0 0 r r`. Both are restored so it reads as a floating card. */
+.ck-mega__panel{
+  border-top:1px solid var(--ds-line);
+  border-radius:var(--ds-r-surface);
+  padding:20px 24px 14px;
+}
+
+/* tighter head — the lede is gone from the markup in this option */
+.ck-mega__title{ font-size:19px; max-width:none; margin-bottom:3px; }
+.ck-mega__rule{ margin-bottom:14px; }
+
+/* Tracks follow the content instead of the hard-coded `repeat(4,1fr) minmax(210px,1.2fr)`.
+   This ONLY collapses because .ck-mega__foot was moved out of the grid — as a grid child its
+   `grid-column:1/-1` spanned every track, so auto-fit had no empty track to remove. */
+.ck-mega__grid{ grid-template-columns:repeat(auto-fit,minmax(186px,1fr)); }
+.ck-mega__foot{ margin-top:var(--ds-space-sm); }
+
+/* the promoted card, filling the track the 5-column grid always reserved and never used */
+.ck-mega__promo{
+  align-self:stretch;
+  padding:15px 16px;
+  background:var(--ds-accent-soft);
+  border:1px solid var(--ds-line);
+  border-radius:12px;
+}
+.ck-mega__promo-eyebrow{
+  margin:0 0 6px; font-size:11.5px; font-weight:700; letter-spacing:.14em;
+  text-transform:uppercase; color:var(--ds-accent-ink);
+}
+.ck-mega__promo-txt{ margin:0 0 12px; font-size:13px; line-height:1.45; color:var(--ds-ink); }
+.ck-mega__promo-cta{
+  display:block; padding:9px 12px; border-radius:8px;
+  background:var(--ds-accent-deep); color:#fff;
+  font-size:13.5px; font-weight:700; text-align:center; text-decoration:none;
+}
+.ck-mega__promo-cta:hover{ background:var(--ds-accent-ink); }
+.ck-mega__promo-alt{
+  display:block; margin-top:7px;
+  font-size:13px; font-weight:700; text-align:center;
+  color:var(--ds-accent-deep); text-decoration:none;
+}
+.ck-mega__promo-alt:hover{ text-decoration:underline; }

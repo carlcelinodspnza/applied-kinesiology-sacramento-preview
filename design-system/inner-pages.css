@@ -1,0 +1,468 @@
+/* ==========================================================================
+   SCOPING NOTE (added 2026-09-29 after a real leak)
+   This sheet is linked by more than one page. Rules written for the
+   /applied-kinesiology/ INDEX page are guarded with `body:has(.pl-plan)` —
+   `.pl-plan` exists on that page only (checked across all 48). Without the
+   guard, linking this sheet to is-muscle-testing-legitimate/ silently added the
+   fibre texture, `overflow:hidden` and a centred h2 to a dark band nobody asked
+   to change. Anything genuinely shared (.ak-photo) stays unguarded.
+
+   INNER PAGES — shared overrides for the non-homepage templates.
+   Linked per page, not globally: these are page-template changes and must not
+   cost a cache-hash bump on the other 47 pages.
+   ========================================================================== */
+
+/* --------------------------------------------------------------------------
+   /applied-kinesiology/ hero — layout option B, owner-selected 2026-09-28.
+
+   Replaced a decorative scale drawing that held a full quarter of the row while
+   the two strongest facts on the page (12 mi / None) were squeezed into a 260px
+   sidebar at 40px. The drawing is gone from the markup; the proximity claim now
+   occupies that space as a panel with its own label.
+
+   The .bw-motif RULES are deliberately untouched — index.html still uses that
+   class in "Why the same adjustment stops holding".
+   -------------------------------------------------------------------------- */
+.ak-proof{
+  background:var(--ds-bg-surface);
+  border:1px solid var(--ds-line);
+  border-radius:var(--ds-r-surface);
+  padding:26px 26px 28px;
+  box-shadow:var(--ds-shadow-lift);
+}
+.ak-proof__hd{
+  margin:0 0 18px;
+  font-size:11.5px; font-weight:700; letter-spacing:.16em;
+  text-transform:uppercase; color:var(--ds-accent-ink);
+}
+.ak-proof .bw-statpair{ gap:22px; }
+/* 40px -> 54px: the figures now counterweight the h1, which is what the drawing
+   was doing badly. Clamped so they do not collide with the label on a narrow panel. */
+.ak-proof .bw-stat b{ font-size:clamp(40px, 3.4vw, 54px); }
+/* the 22rem cap is for a 260px sidebar; inside the panel it strands the line short */
+.ak-proof .bw-stat span{ max-width:none; }
+
+@media (max-width:900px){
+  .ak-proof{ padding:22px; }
+}
+
+/* --------------------------------------------------------------------------
+   /applied-kinesiology/ "You have probably already done the sensible things"
+   Owner 2026-09-28: photograph instead of the spine line-drawing — no frame,
+   no border, rounded corners, no caption.
+
+   .bw-frame was carrying padding, a border, a background and a caption slot.
+   A bare figure is used instead of overriding all four, so nothing is fighting
+   the shipped component.
+   -------------------------------------------------------------------------- */
+.ak-photo{
+  margin:0;
+  border-radius:var(--ds-r-surface);
+  overflow:hidden;          /* the radius has to clip the <img>, not just the box */
+}
+.ak-photo img{
+  display:block;
+  width:100%;
+  height:auto;
+  max-width:none;           /* structural.css:44 img{max-width:100%} would cap it at its own px width */
+}
+
+/* --------------------------------------------------------------------------
+   /applied-kinesiology/ "What this actually buys you"
+   Owner 2026-09-28: illustration dropped, the three value items become cards
+   on one line. Chrome comes from .bw-card and the icon/type from .bw-icontop;
+   only the collision between them is corrected here.
+   -------------------------------------------------------------------------- */
+/* .bw-icontop sets padding-top for a STACKED list and would override the card's
+   own top inset, seating the icon too close to the border. */
+.bw-card.bw-icontop{ padding-top:var(--ds-space-lg); }
+/* the icon sat on a --ds-space-sm gap tuned for the stacked layout */
+.bw-card.bw-icontop svg{ margin-bottom:var(--ds-space-xs); }
+
+/* Centre ONLY this section's CTAs. There are three .bw-actions on this page — the hero,
+   this section, and "Common questions" — and both of the latter are .section--warm, so
+   scoping by section class would take the FAQ's buttons too. `.row--cards` appears exactly
+   once on the page, which makes it the precise handle.
+   (An unscoped `.bw-actions{justify-content:center}` is the exact mistake made on the
+   homepage earlier this session; it reached a section nobody asked to change.) */
+section:has(.row--cards) .bw-actions{ justify-content:center; }
+
+/* --------------------------------------------------------------------------
+   /applied-kinesiology/ "What a plan looks like" — layout option B,
+   owner-selected 2026-09-28, with uniform service pills.
+
+   The four steps use .bw-card + .row--cards, the same pairing as the cards in
+   "What this actually buys you" above, so the page reads as one system.
+   `is-rail` stays on that row: below 760px structural.css makes it a swipeable
+   rail (and sets .is-rail > * > .bw-card{height:100%}). Dropping it stacks the
+   four steps and adds ~600px on a phone.
+   -------------------------------------------------------------------------- */
+.pl-step b{
+  display:block; margin-bottom:10px;
+  font-family:var(--ds-font-display); font-size:26px; line-height:1;
+  color:var(--ds-accent-ink);
+}
+.pl-step h3{ font-size:18px; margin:0 0 6px; }
+.pl-step p{ margin:0; font-size:14.5px; color:var(--ds-ink-soft); }
+
+/* the tail prose now has the full row, so it needs a reading cap of its own */
+/* The LEDE (top right, in col--span-5) keeps a reading cap; the two TAIL paragraphs
+   (in col--full) run the container's full width and centre, per owner 2026-09-28.
+   Scoped by column so the lede is not centred with them — `.pl-plan .bw-prose`
+   alone would take all three. */
+.pl-plan .col--span-5 .bw-prose{ max-width:78ch; }
+.pl-plan .col--full .bw-prose{ max-width:none; text-align:center; }
+.pl-plan .container > .row + .row{ margin-top:var(--ds-space-md); }
+.pl-plan .row--cards + .row{ margin-top:var(--ds-space-lg); }
+
+/* PILLS: identical width AND height, one line each.
+   The shipped .bw-chiplist is flex-wrap, which sizes every pill to its own text —
+   six chips, six widths, ragged rows. A grid fixes the width; the stretch chain
+   below fixes the height, because `.bw-chiplist a{display:inline-flex}` would
+   otherwise shrink-wrap the link and leave the chip its natural height.
+   300px floor: the longest chip ("Hormone therapy management") measures 229px
+   natural, so 300 guarantees a single line and lands 3-up at ~365px in the
+   1112px container. */
+.pl-plan .bw-chiplist{
+  display:grid;
+  grid-template-columns:repeat(auto-fit, minmax(min(100%, 300px), 1fr));
+  grid-auto-rows:1fr;
+  align-items:stretch;
+  gap:var(--ds-space-xs);
+}
+.pl-plan .bw-chiplist li{ display:flex; }
+.pl-plan .bw-chiplist a{ display:flex; width:100%; }
+.pl-plan .bw-chiplist .bw-chip{
+  flex:1; display:flex; align-items:center; justify-content:center;
+  text-align:center; width:100%;
+}
+
+/* --------------------------------------------------------------------------
+   /applied-kinesiology/ "The limits, stated plainly" — centred, owner 2026-09-28.
+
+   Handle is `:has(.bw-belief)`, NOT `.section--dark`: this page carries TWO
+   `.section--dark.surface-dark` sections (this one and "What we do not claim"),
+   plus the footer also carries `.surface-dark`. `.bw-belief` appears exactly once
+   on the page. It appears on two other pages site-wide, but this sheet is linked
+   from this page only, so it cannot reach them.
+
+   Each block needs BOTH declarations: the belief (561px) and the prose (640px)
+   are capped well inside the 1112px column, so text-align alone would centre the
+   words inside a block still sitting hard left. -------------------------------- */
+body:has(.pl-plan) section:has(.bw-belief) .bw-rule{ margin-inline:auto; }
+body:has(.pl-plan) section:has(.bw-belief) .bw-eyebrow{ text-align:center; }
+body:has(.pl-plan) section:has(.bw-belief) .bw-belief,
+body:has(.pl-plan) section:has(.bw-belief) .bw-prose{ text-align:center; margin-inline:auto; }
+
+/* --------------------------------------------------------------------------
+   "The limits, stated plainly" — faint fibre texture, owner 2026-09-28.
+
+   The supplied image is red muscle fibre. It was recoloured OFFLINE rather than
+   with a CSS filter: the pixels are mapped from luminance onto a ramp between
+   #12303B and #8ADBEC, so the fibre structure survives and the hue lands in the
+   band's own family (its eyebrow is #4FC0D8, its rule #0E9BB8). A runtime
+   hue-rotate would have been approximate and would have cost a filter pass on a
+   full-bleed layer.
+
+   The layer is a ::before, not a background on the section, because the section
+   already uses background-image for its #1E2A33 -> #263440 gradient and that
+   gradient must stay underneath.
+
+   Applies to BOTH dark bands — "The limits, stated plainly" and "What we do not
+   claim" (owner 2026-09-28). `.section--dark.surface-dark` matches exactly those
+   two; the footer carries `.surface-dark` but is not `.section--dark`.
+
+   `overflow:hidden` is safe on both: neither contains a seam (measured
+   seamInside 0 on each) — the arcs that bracket them live in sibling sections.
+   -------------------------------------------------------------------------- */
+body:has(.pl-plan) .section--dark.surface-dark{ overflow:hidden; isolation:isolate; }
+body:has(.pl-plan) .section--dark.surface-dark::before{
+  content:"";
+  position:absolute; inset:0; z-index:0; pointer-events:none;
+  background:url("../assets/fibre-blue.jpg") center/cover no-repeat;
+  opacity:.22;
+  /* the hard centre fade: fully clear out to 42%, then ramp in quickly so the
+     texture only reads at the edges and never behind the centred text */
+  -webkit-mask-image:radial-gradient(ellipse 58% 64% at 50% 50%, #0000 0%, #0000 42%, #000 78%);
+          mask-image:radial-gradient(ellipse 58% 64% at 50% 50%, #0000 0%, #0000 42%, #000 78%);
+}
+/* the content must sit above the texture layer */
+body:has(.pl-plan) .section--dark.surface-dark > .container{ position:relative; z-index:1; }
+
+/* The arc texture MUST be set in CSS, not as a fill="url(#…)" attribute.
+   structural.css:1345 declares `.bw-seam path { fill: currentColor }`, and a CSS
+   declaration beats a presentation attribute — so the attribute version painted
+   the pattern path in the flat seam colour instead, i.e. a second opaque copy of
+   the same shape and no texture at all. Proven by filling it solid magenta at
+   opacity 1 and measuring ZERO magenta pixels.
+   (0,2,1) here beats (0,1,1) there. */
+.bw-seam path.ak-seamtex--top{ fill:url(#akFibreArcTop); }
+.bw-seam path.ak-seamtex--bot{ fill:url(#akFibreArcBottom); }
+
+/* --------------------------------------------------------------------------
+   /applied-kinesiology/ capability matrix — reads as a TABLE, owner 2026-09-28.
+
+   Before: rows 75/50/50/75 and the emphasis column squeezed to 102px of 709, so
+   every header wrapped to three lines. And with only horizontal rules, no outer
+   border and no header ground, it read as a loose list rather than a table.
+
+   ALL of it is scoped to the TABLE layout. Below 601px structural.css:1795 turns
+   the matrix into one stacked CARD PER ROW (display:block on table/tbody/tr/td);
+   a percentage width on a block-level cell squeezed each card into an unreadable
+   1-2 character sliver. That regression passed a 6-breakpoint gate that checked
+   display:block, row uniformity and overflow — none of which legibility depends
+   on. Nothing in here may leak below 601px.
+   -------------------------------------------------------------------------- */
+@media (min-width:601px){
+  /* The frame goes on the TABLE, not the wrapper. A <caption> is part of the table
+     box but sits OUTSIDE its border, so a border here keeps the caption above the
+     frame where it belongs — on the wrapper it was enclosed by it. Square corners:
+     border-radius needs border-collapse:separate, and separate borders reintroduce
+     the doubled edges this grid is built to avoid. */
+  .bw-matrix{
+    table-layout:fixed; font-size:14.5px;
+    border-collapse:collapse;
+    border:1px solid var(--ds-line);
+    background:var(--ds-bg-surface);
+  }
+  .bw-matrix caption{ padding:0 0 var(--ds-space-sm); }
+
+  .bw-matrix th:nth-child(1), .bw-matrix td:nth-child(1){ width:31%; }
+  .bw-matrix th:nth-child(2), .bw-matrix td:nth-child(2){ width:24%; }
+  .bw-matrix th:nth-child(3), .bw-matrix td:nth-child(3){ width:26%; }
+  .bw-matrix th:nth-child(4), .bw-matrix td:nth-child(4){ width:19%; }
+
+  /* COLUMN separators — the main thing that was missing. Every cell carries a
+     right-hand rule except the last, so the grid reads in both axes. */
+  .bw-matrix th, .bw-matrix td{
+    vertical-align:middle;
+    padding:13px 18px;
+    border-right:1px solid var(--ds-line);
+    border-bottom:1px solid var(--ds-line);
+  }
+  .bw-matrix th:last-child, .bw-matrix td:last-child{ border-right:0; }
+  .bw-matrix tbody tr:last-child th,
+  .bw-matrix tbody tr:last-child td{ border-bottom:0; }
+
+  /* a header ground, so the head reads as a head and not as a first row */
+  .bw-matrix thead th{
+    background:var(--ds-bg-surface-2);
+    font-size:12px; line-height:1.4; letter-spacing:.02em;
+    vertical-align:bottom; padding-top:14px; padding-bottom:12px;
+    border-bottom:1px solid var(--ds-line);
+  }
+
+  /* a floor, so a 1-line row and a 2-line row read as the same band.
+     Measured: rows were 75/50/50/75 before, 76/76/76/76 after. */
+  .bw-matrix tbody th, .bw-matrix tbody td{ height:76px; }
+
+  /* the emphasis column now sits INSIDE the grid — no rounding, no broken rules,
+     just a tinted column the borders run through, which is what makes it read as
+     part of the table rather than a card floating over it */
+  .bw-matrix .is-this{ background:var(--ds-accent-soft); }
+  .bw-matrix thead .is-this{ background:#CFE8EF; }
+
+  /* zebra, at a weight below the rules */
+  .bw-matrix tbody tr:nth-child(even) th,
+  .bw-matrix tbody tr:nth-child(even) td{ background:rgba(0,0,0,.018); }
+  .bw-matrix tbody tr:nth-child(even) .is-this{ background:var(--ds-accent-soft); }
+}
+
+/* --------------------------------------------------------------------------
+   /applied-kinesiology/ "What we do not claim" — centred, owner 2026-09-28.
+
+   This is the OTHER dark band, the one deliberately left alone when
+   "The limits, stated plainly" was centred. Both are `.section--dark
+   surface-dark`, so they are told apart by `.bw-belief`, which only the first
+   carries — hence the :not(). The footer also carries `.surface-dark` but is
+   not `.section--dark`, so it is out of scope either way.
+
+   Both declarations again: the h2 (516px) and the lede (544px) are capped well
+   inside the 1112px column, so text-align alone would centre the words inside a
+   block still sitting hard left.
+   -------------------------------------------------------------------------- */
+body:has(.pl-plan) .section--dark:not(:has(.bw-belief)) .bw-rule{ margin-inline:auto; }
+body:has(.pl-plan) .section--dark:not(:has(.bw-belief)) h2,
+body:has(.pl-plan) .section--dark:not(:has(.bw-belief)) .bw-lede{ text-align:center; margin-inline:auto; }
+
+/* --------------------------------------------------------------------------
+   /applied-kinesiology/ "Common questions" — layout option B, owner 2026-09-28.
+
+   Before: the column is 1112px but `.bw-faq` was capped at 736px, the answers at
+   640px and the h2 at 516px, leaving 376px of the row empty. Section 814px tall.
+   B puts the heading and both CTAs in a 4-column rail and gives the questions the
+   other 8, so the CTA sits beside the answers instead of below all of them.
+
+   Native <details>/<summary> throughout — no JavaScript added.
+   -------------------------------------------------------------------------- */
+.fq-b .bw-faq{ max-width:none; }
+.fq-b .fq-rail h2{ max-width:none; }
+.fq-b .fq-rail .bw-prose{ max-width:none; margin-top:var(--ds-space-md); }
+.fq-b .fq-rail .bw-actions{ margin-top:var(--ds-space-md); }
+/* the answers get the wider column but keep a reading measure of their own */
+.fq-b .bw-answer{ max-width:52rem; }
+
+@media (min-width:901px){
+  /* 83px is the measured sticky header height; +16 keeps the rail clear of it */
+  .fq-b .fq-rail{ position:sticky; top:99px; }
+}
+
+/* --------------------------------------------------------------------------
+   /applied-kinesiology/is-muscle-testing-legitimate/ hero — balance, owner 2026-09-29.
+
+   Measured: text column 617x470, photo 431x288, row `align-items:center` — so the
+   photo floated with ~91px of air ABOVE and BELOW it against a text block 182px
+   taller. The photo now fills the row instead.
+
+   Scoped by its OWN class `.mt-hero`, added to that one section. This sheet is
+   linked by more than one page, and generic selectors are exactly what leaked
+   onto this page earlier today.
+   -------------------------------------------------------------------------- */
+@media (min-width:901px){
+  /* .row--center pins the columns to their own heights; stretch lets the media track
+     match the text track, which is what removes the air */
+  .mt-hero .row{ align-items:stretch; }
+  .mt-hero .ak-photo{ height:100%; }
+  .mt-hero .ak-photo img{
+    height:100%; object-fit:cover;
+    /* the hands and the dumbbell sit just above centre in the 3:2 source; a straight
+       50% crop clipped them low once the box turns portrait */
+    object-position:50% 42%;
+  }
+}
+
+/* --------------------------------------------------------------------------
+   /applied-kinesiology/is-muscle-testing-legitimate/ — the ICAK evidence band.
+   Owner 2026-09-29: "this [the quote] can stand alone on the left side and we may
+   have to adjust the size of these [the heading + prose] so we can fit the image
+   here as well. I dont mind having a bit smaller image."
+
+   The photo moved out of the left column into the right, so the right side now
+   carries heading + prose + photo and the left carries the quote alone. Measured
+   straight after the move at 1680: right 978px against 486px of quote — 492px of
+   slack. Three levers close it, all authorised by the brief:
+     · the quote is sized to the column it now owns instead of the shared 26rem cap;
+     · the prose gives up a little measure;
+     · the photo is capped ("a bit smaller image").
+   Numbers below are tuned against the measured result, not assumed.
+
+   Scoped by its own `.mt-evidence` hook — this sheet is linked by two pages.
+   -------------------------------------------------------------------------- */
+@media (min-width:901px){
+  .mt-evidence .row{ align-items:center; }
+  .mt-evidence .col--span-5{ container-type:inline-size; }
+
+  /* Sized to the COLUMN, not the viewport. The container caps at 1160px, so the left
+     column locks at 431px from ~1200 upward while the viewport keeps growing — a vw
+     clamp therefore kept shrinking the quote at exactly the widths where its column
+     had stopped changing (36px at 1280 vs 44px at 1680 for an identical 431px column).
+     12cqw tracks the measured optimum at every width; the clamp is the fallback for
+     engines without container queries, and is dropped where `cqw` parses.
+     Resulting difference between the two columns: -81px at 1680, -57 at 1100, -1 at
+     1024, +151 at 901 — i.e. at worst 76px of air a side, against 492px before. */
+  .mt-evidence .bw-quote{ max-width:none; font-size:clamp(30px, 2.9vw, 47px); }
+  .mt-evidence .bw-quote{ font-size:11cqw; }
+
+  /* "a bit smaller image" — capped and cropped from the centre rather than letterboxed.
+     260px is the tallest cap that still lets the columns land inside that 76px. */
+  .mt-evidence .ak-photo{ margin-top:32px; }
+  .mt-evidence .ak-photo img{ max-height:240px; object-fit:cover; }
+
+  /* ---- fit the whole band in one viewport. Owner 2026-09-29: "I want this to fit in
+     a single viewport so the user won't have to scroll so let's adjust font sizes."
+
+     Budget: window height minus the 83px sticky header. Swept 2,880 combinations of
+     quote size x prose size x heading size x photo cap x padding x gap against it.
+     The finding that decided the numbers: 17px prose does NOT fit a 900-tall window
+     at ANY combination of the other five. 15.5px does, and keeps the photo at 240
+     (a 2.57 crop) instead of forcing it to a 3.43 sliver, which is what holding
+     16px costs. Result at >=1160: section 812px, columns within 7px of each other.
+
+     Honest limit: below 1160 the container stops capping, the right column narrows,
+     its four paragraphs gain lines, and 909px is the floor — that needs a ~992-tall
+     window. Shrinking type further at those widths was rejected as not worth it. */
+  .mt-evidence{ padding-block:40px; }
+  .mt-evidence h2{ font-size:36px; }
+  .mt-evidence .col--span-7 > p{ font-size:15.5px; }
+}
+
+/* Below 1024 the section is 909px tall whatever the quote does — the right column's four
+   paragraphs set the floor. So a larger quote there costs no height and buys back the
+   balance that the fit pass gave up: measured column difference at 960 goes 218 -> 7,
+   at 901 254 -> 57, with the section unchanged at 909px in both cases. Deliberately NOT
+   extended to 1024/1100, where the same change adds 48px/113px for no balance gain. */
+@media (min-width:901px) and (max-width:1023px){
+  .mt-evidence .bw-quote{ font-size:12cqw; }
+}
+
+/* --------------------------------------------------------------------------
+   A photograph needs air before whatever follows it. Owner 2026-09-29:
+   "for these we must observe a proper spacing between them."
+
+   The site's original pattern butts `.bw-glass` straight against the visual above
+   it (measured gap 0 on first-visit and frozen-shoulder, where that visual is an
+   inline SVG). That read fine for a line drawing, which carries its own internal
+   whitespace — a photograph's pixels run to the rounded edge, so the same zero gap
+   jams two surfaces together. This is a consequence of the diagram -> photo swaps.
+   -------------------------------------------------------------------------- */
+.ak-photo + *{ margin-top:var(--ds-space-md); }
+
+/* --------------------------------------------------------------------------
+   /applied-kinesiology/is-muscle-testing-legitimate/ — "Where to go next".
+   Owner 2026-09-29: "let's use the muscle fiber BG, and let's improve the cards,
+   they look so empty, let's make them look more sleek and compact".
+
+   Measured before: cards 328x261 holding 114px of content — 147px of slack on the
+   two navigation cards, because the third card's CTA button sets the row height and
+   the other two stretch to meet it. The section also had an empty col beside the
+   heading and no texture layer at all.
+
+   Scoped by `.mt-next`. The texture is the same layer and the same hard centre fade
+   used on the AK index bands, re-declared here rather than widened to a generic
+   `.section--dark` selector — this sheet is linked by two pages.
+   -------------------------------------------------------------------------- */
+.mt-next{ overflow:hidden; isolation:isolate; }
+.mt-next::before{
+  content:"";
+  position:absolute; inset:0; z-index:0; pointer-events:none;
+  background:url("../assets/fibre-blue.jpg") center/cover no-repeat;
+  /* Re-tuned from the AK index band's .22 / ellipse 58% 64%. Those numbers are set for a
+     TALL band with centred copy; this band is 398px on 1680, so the same ellipse cleared
+     only a small middle and the texture read as a full-bleed photograph rather than a
+     texture (captured and compared at .22/.16/.13). At .13 with a wider, later ramp it
+     sits in the corners and leaves the cards on clean ground. */
+  opacity:.13;
+  -webkit-mask-image:radial-gradient(ellipse 88% 82% at 50% 50%, #0000 0%, #0000 50%, #000 86%);
+          mask-image:radial-gradient(ellipse 88% 82% at 50% 50%, #0000 0%, #0000 50%, #000 86%);
+}
+.mt-next > .container{ position:relative; z-index:1; }
+
+/* --- the cards: compact, and every one of them with something on its floor --- */
+.mt-next .bw-card{
+  position:relative;
+  display:flex; flex-direction:column;
+  padding:22px 24px;
+  gap:6px;
+}
+.mt-next .bw-card h3{ margin:0; font-size:21px; line-height:1.25; }
+.mt-next .bw-card p{ margin:0; font-size:15px; line-height:1.5; }
+
+/* the arrow is pinned to the card floor, which is where the third card's button sits —
+   so the slack goes BETWEEN the copy and the foot on all three instead of hanging under
+   the copy on two of them. Same idiom as `.bw-qcard__foot{margin-top:auto}`. */
+.mt-next__go{
+  margin-top:auto; padding-top:14px;
+  font-size:19px; line-height:1; color:var(--ds-accent-ink);
+  transition:transform var(--ds-dur) var(--ds-ease);
+}
+.mt-next .bw-card:has(.bw-btn) p:last-of-type{ margin-top:auto; padding-top:8px; }
+.mt-next .bw-card .bw-btn{ padding:11px 18px; font-size:14.5px; }
+
+/* the whole navigation card becomes the click target (the heading link is stretched
+   over it) — the arrow is decoration, not a second tab stop */
+.mt-next .bw-card h3 a::after{ content:""; position:absolute; inset:0; }
+.mt-next .bw-card:has(h3 a):hover .mt-next__go{ transform:translateX(4px); }
+@media (prefers-reduced-motion:reduce){
+  .mt-next__go{ transition:none; }
+  .mt-next .bw-card:has(h3 a):hover .mt-next__go{ transform:none; }
+}

@@ -1,0 +1,35 @@
+/* ============================================================================
+   image-set.css — the inner-page photograph + plate set (2026-09-29)
+   applied-kinesiology-sacramento · images from jc1147/applied-kinesiology-sacramento-images @9a56475
+
+   SCOPE: linked LAST, and only on the 33 pages that carry an image from the set. The homepage and
+   the two V4 pages (applied-kinesiology/, is-muscle-testing-legitimate/) do NOT link this sheet —
+   those two place their photographs through .ak-photo in inner-pages.css. Every rule below is keyed
+   to a modifier class that exists only where the set was placed, so it cannot leak onto a page that
+   links the sheet for a different figure.
+   ============================================================================ */
+
+/* A photograph or plate inside the site's own media frame. .bw-frame is height:100% so it fills its
+   column; around an image that stretched the card past the picture in a tall column, so the frame
+   sizes to its content instead. */
+.bw-frame--photo { height: auto; }
+.bw-frame--photo > img {
+  display: block;
+  width: 100%;
+  height: auto;
+  border-radius: var(--ds-r-control);
+}
+/* Air before whatever follows the frame. The line drawings these replaced sat flush on the next
+   element (a .bw-glass card or a .bw-small note), measured 0px on 13 placements at every width;
+   a framed photograph jammed against a card reads as two surfaces colliding. Same rule, same
+   token, as `.ak-photo + *` in inner-pages.css (owner 2026-09-29: "we must observe a proper
+   spacing between them"). */
+.bw-frame--photo + * { margin-top: var(--ds-space-md); }
+
+/* Inside a glass card (sciatica "What treatment involves") the frame chrome is dropped by
+   .bw-frame--bare; the image keeps its rounded corners and gets air before the heading below it. */
+.bw-frame--photo.bw-frame--bare { margin-bottom: var(--ds-space-md); }
+
+/* The services hub hero keeps its .bw-shot frame and caption chip; .bw-shot crops every image to 4:3
+   by default, and this image was cut for a square slot. */
+.bw-shot--photo img { aspect-ratio: auto; height: auto; }

@@ -325,9 +325,10 @@ body:has(.pl-plan) .section--dark:not(:has(.bw-belief)) .bw-lede{ text-align:cen
   .mt-hero .ak-photo{ height:100%; }
   .mt-hero .ak-photo img{
     height:100%; object-fit:cover;
-    /* the hands and the dumbbell sit just above centre in the 3:2 source; a straight
-       50% crop clipped them low once the box turns portrait */
-    object-position:50% 42%;
+    /* 2026-09-29 image set: ak-legit-hero is 7:5 and the box is portrait (431x470 at
+       1440), so cover trims the SIDES only and the vertical value has no effect. The
+       tested forearm and both hands sit on the centre line, so a centred crop keeps them. */
+    object-position:50% 50%;
   }
 }
 
@@ -367,6 +368,11 @@ body:has(.pl-plan) .section--dark:not(:has(.bw-belief)) .bw-lede{ text-align:cen
      260px is the tallest cap that still lets the columns land inside that 76px. */
   .mt-evidence .ak-photo{ margin-top:32px; }
   .mt-evidence .ak-photo img{ max-height:240px; object-fit:cover; }
+  /* 2026-09-29 image set: the photo here is now the square balance PLATE (ak-balance).
+     Cropped to the 240px strip it lost the beam and both chains, so the plate is shown
+     whole at 240x240 instead. Same 240px height, so the one-viewport budget above holds. */
+  .mt-evidence .ak-photo{ width:240px; }
+  .mt-evidence .ak-photo img{ aspect-ratio:1 / 1; }
 
   /* ---- fit the whole band in one viewport. Owner 2026-09-29: "I want this to fit in
      a single viewport so the user won't have to scroll so let's adjust font sizes."

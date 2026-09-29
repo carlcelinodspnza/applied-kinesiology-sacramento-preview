@@ -2,34 +2,67 @@
    image-set.css — the inner-page photograph + plate set (2026-09-29)
    applied-kinesiology-sacramento · images from jc1147/applied-kinesiology-sacramento-images @9a56475
 
-   SCOPE: linked LAST, and only on the 33 pages that carry an image from the set. The homepage and
-   the two V4 pages (applied-kinesiology/, is-muscle-testing-legitimate/) do NOT link this sheet —
-   those two place their photographs through .ak-photo in inner-pages.css. Every rule below is keyed
-   to a modifier class that exists only where the set was placed, so it cannot leak onto a page that
-   links the sheet for a different figure.
+   SCOPE: linked LAST, only on inner pages that carry a frameless image: the 33 pages with an image
+   from the set, plus the pages whose older illustrations were made frameless the same day. The
+   homepage and the two V4 pages (applied-kinesiology/, is-muscle-testing-legitimate/) do NOT link
+   this sheet — those two place their photographs through .ak-photo in inner-pages.css. Every rule
+   below is keyed to a modifier class (.bw-frame--photo / .bw-shot--photo) that is only ever added
+   by hand to a figure meant to be frameless, so it cannot leak onto any other figure.
    ============================================================================ */
 
-/* A photograph or plate inside the site's own media frame. .bw-frame is height:100% so it fills its
-   column; around an image that stretched the card past the picture in a tall column, so the frame
-   sizes to its content instead. */
-.bw-frame--photo { height: auto; }
+/* FRAMELESS, matching .ak-photo on /applied-kinesiology/. Owner 2026-09-29: "make them all frameless
+   like the applied kinesiology page" (that page's spec, 2026-09-28: no frame, no border, rounded
+   corners, no caption). The markup keeps the site's figure.bw-frame so nothing else moves; this
+   strips its chrome back to a bare, rounded, full-column image.
+
+   Specificity: structural.css sets the mobile mount padding with `.bw-frame:not(.bw-frame--bare)`
+   (0,2,0), so a single `.bw-frame--photo` would lose to it below 900px. `.bw-frame.bw-frame--photo`
+   ties at (0,2,0) and wins by source order — this sheet is linked last.
+   Owner, same day: "Yes, all of them" — the older gen_anatomy illustrations carry the class too, so
+   no inner-page image keeps a frame (Dr. Van Wagenen's portrait keeps its own portrait treatment). */
+.bw-frame.bw-frame--photo {
+  display: block;
+  height: auto;
+  max-width: none;
+  margin: 0;
+  padding: 0;
+  background: none;
+  border: 0;
+  box-shadow: none;
+  border-radius: var(--ds-r-surface);
+  overflow: hidden;          /* the radius has to clip the <img>, not just the box (as .ak-photo) */
+}
 .bw-frame--photo > img {
   display: block;
   width: 100%;
   height: auto;
-  border-radius: var(--ds-r-control);
+  max-width: none;           /* structural.css:44 img{max-width:100%} would cap it at its own px width */
 }
-/* Air before whatever follows the frame. The line drawings these replaced sat flush on the next
+
+/* A PLATE inside a reading column (who-its-for) must not stretch to the column the way a media
+   column image does — .bw-frame--plate keeps it hugging its drawing on the prose's left gutter with
+   its own top/bottom rhythm. Frameless, the plate IS the image, so it is capped at the drawing's
+   displayed size (structural.css caps the img at 320px) rather than the old 420px mount. (0,3,0) so
+   it beats the (0,2,0) frameless reset above. */
+.bw-frame.bw-frame--photo.bw-frame--plate {
+  max-width: 320px;
+  margin-block: var(--ds-space-md);
+}
+
+/* Air before whatever follows the image. The line drawings these replaced sat flush on the next
    element (a .bw-glass card or a .bw-small note), measured 0px on 13 placements at every width;
-   a framed photograph jammed against a card reads as two surfaces colliding. Same rule, same
-   token, as `.ak-photo + *` in inner-pages.css (owner 2026-09-29: "we must observe a proper
-   spacing between them"). */
+   a photograph's pixels run to its rounded edge, so the same zero gap jams two surfaces together.
+   Same rule, same token, as `.ak-photo + *` in inner-pages.css (owner 2026-09-29: "we must observe
+   a proper spacing between them"). */
 .bw-frame--photo + * { margin-top: var(--ds-space-md); }
 
-/* Inside a glass card (sciatica "What treatment involves") the frame chrome is dropped by
-   .bw-frame--bare; the image keeps its rounded corners and gets air before the heading below it. */
+/* Inside a glass card (sciatica "What treatment involves") the image also needs air before the
+   heading below it. Declared after the frameless rule so its margin-bottom survives `margin:0`. */
 .bw-frame--photo.bw-frame--bare { margin-bottom: var(--ds-space-md); }
 
-/* The services hub hero keeps its .bw-shot frame and caption chip; .bw-shot crops every image to 4:3
-   by default, and this image was cut for a square slot. */
+/* The services hub hero: same frameless treatment for its .bw-shot figure (border and lift shadow
+   off; radius and clipping are .bw-shot's own). Its "One office. One licensed practitioner." chip is
+   page copy overlaid on the photo, not an image caption, so it stays. .bw-shot crops every image to
+   4:3 by default, and this image was cut for a square slot. */
+.bw-shot--photo { border: 0; box-shadow: none; }
 .bw-shot--photo img { aspect-ratio: auto; height: auto; }
